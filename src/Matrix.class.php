@@ -1,22 +1,18 @@
 <?php
 
-
-
-require_once 'Color.class.php';
-require_once 'Vertex.class.php';
-require_once 'Vector.class.php';
+namespace Waxer\Rasterix;
 
 class Matrix
 {
-    const IDENTITY = "IDENTITY";
-    const SCALE = "SCALE";
-    const RX = "RX";
-    const RY = "RY";
-    const RZ = "RZ";
-    const TRANSLATION = "TRANSLATION";
-    const PROJECTION = "PROJECTION";
+    public const IDENTITY = "IDENTITY";
+    public const SCALE = "SCALE";
+    public const RX = "RX";
+    public const RY = "RY";
+    public const RZ = "RZ";
+    public const TRANSLATION = "TRANSLATION";
+    public const PROJECTION = "PROJECTION";
 
-    const SIZE = 4;
+    public const SIZE = 4;
 
     private float $_scale;
     // Radian
@@ -28,74 +24,76 @@ class Matrix
     private float $_near;
     private float $_far;
 
-    private array $_matrix = array();
+    /**
+     * @var array<Vector>
+     */
+    private array $_matrix = [];
 
-	static bool $verbose = false;
+    public static bool $verbose = false;
 
-	public function __construct(array $args)
-	{
-        if (!isset($args['preset'])) 
-            throw new \Exception('Preset is mandatory');
-        
-        switch ($args['preset']) 
-        {
+    /**
+     * @param array<string|Vector|float> $args
+     */
+    public function __construct(array $args)
+    {
+        if (false === array_key_exists('preset', $args)) {
+            throw new InvalidArgumentsException();
+        }
+
+        switch ($args['preset']) {
             case self::IDENTITY:
                 $this->createIdentityMatrix();
-            break;
+                break;
             case self::SCALE:
-                if (!isset($args['scale'])) 
-                    $this->throwParameterMissingException();
+                if (false === array_key_exists('scale', $args)) {
+                    throw new InvalidArgumentsException();
+                }
                 $this->_scale = $args['scale'];
-            break;
+                break;
             case self::RX:
             case self::RY:
             case self::RZ:
-                if (!isset($args['angle'])) 
-                    $this->throwParameterMissingException();
+                if (false === array_key_exists('angle', $args)) {
+                    throw new InvalidArgumentsException();
+                }
                 $this->_angle = $args['angle'];
-            break;
+                break;
             case self::TRANSLATION:
-                if (!isset($args['vtc'])) 
-                    $this->throwParameterMissingException();
+                if (false === array_key_exists('vtc', $args)) {
+                    throw new InvalidArgumentsException();
+                }
                 $this->_vtc = $args['vtc'];
-                $this->createTraslationMatrix($this->_vtc);
-            break;
+                break;
             case self::PROJECTION:
-                if (!isset($args['fov']) && !isset($args['ratio']) && !isset($args['near']) && !isset($args['far']))
-                    $this->throwParameterMissingException();
+                if (false === array_key_exists('fov', $args)
+                    && array_key_exists('ratio', $args)
+                    && array_key_exists('near', $args)
+                    && array_key_exists('far', $args)
+                ) {
+                    throw new InvalidArgumentsException();
+                }
                 $this->_ratio = $args['ratio'];
                 $this->_near = $args['near'];
                 $this->_far = $args['far'];
-            break;
+                break;
             default:
-                throw new \Exception('Preset not defined');
+                throw new InvalidArgumentsException();
         }
-
-	}
-
-    private function createTraslationMatrix(Vector $vtc)
-    {
-        
     }
 
-    private function throwParameterMissingException()
+    private function createIdentityMatrix(): void
     {
-        throw new \Exception('Some parameters are missing');
-    }
-
-    private function createIdentityMatrix()
-    {
-        $vtx = new Vertex(['x' => 1, 'y' => 0, 'z' => 0, 'w' => 1]);        
-        $vty = new Vertex(['x' => 0, 'y' => 1, 'z' => 0, 'w' => 1]);        
-        $vtz = new Vertex(['x' => 0, 'y' => 0, 'z' => 1, 'w' => 1]);        
-        $vto = new Vertex(['x' => 0, 'y' => 0, 'z' => 0, 'w' => 2]);        
+        $vtx = new Vertex(['x' => 1, 'y' => 0, 'z' => 0, 'w' => 1]);
+        $vty = new Vertex(['x' => 0, 'y' => 1, 'z' => 0, 'w' => 1]);
+        $vtz = new Vertex(['x' => 0, 'y' => 0, 'z' => 1, 'w' => 1]);
+        $vto = new Vertex(['x' => 0, 'y' => 0, 'z' => 0, 'w' => 2]);
 
         $vtcX = new Vector(['dest' => $vtx]);
         $vtcY = new Vector(['dest' => $vty]);
         $vtcZ = new Vector(['dest' => $vtz]);
         $vtcO = new Vector(['dest' => $vto]);
 
-        
+
         $this->_matrix[0] = $vtcX;
         $this->_matrix[1] = $vtcY;
         $this->_matrix[2] = $vtcZ;
@@ -106,10 +104,12 @@ class Matrix
     {
         $output = "M | vtcX | vtcY | vtcZ | vtxO\n-----------------------------\n";
 
-        $lineX = ""; $lineY = ""; $lineZ = ""; $lineO = "";
-        
-        for($x = 0; $x != self::SIZE; $x++)
-        {
+        $lineX = "";
+        $lineY = "";
+        $lineZ = "";
+        $lineO = "";
+
+        for ($x = 0; $x != self::SIZE; $x++) {
             $lineX .= sprintf("%.2f | ", $this->_matrix[$x]->getX());
             $lineY .= sprintf("%.2f | ", $this->_matrix[$x]->getY());
             $lineZ .= sprintf("%.2f | ", $this->_matrix[$x]->getZ());
@@ -119,20 +119,14 @@ class Matrix
         return sprintf("%sx | %s\ny | %s\nz | %s\nw | %s\n", $output, $lineX, $lineY, $lineZ, $lineO);
     }
 
-	public function __destruct()
-	{
-	}
-
-    static public function doc()
+    public function __destruct()
     {
-		$filecontents = file_get_contents("Matrix.doc.txt");
-		print($filecontents);
-	}
-	
+    }
+
     public function __toString()
     {
         return $this->outputMatrix();
-	}
+    }
 
     public function getScale(): float
     {
@@ -163,7 +157,4 @@ class Matrix
     {
         return $this->_far;
     }
-
 }
-
-?>
