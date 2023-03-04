@@ -32,6 +32,9 @@ class Vertex
         }
     }
 
+    /**
+     * @return void
+     */
     public function __destruct()
     {
         if (self::$verbose === true) {

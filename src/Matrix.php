@@ -24,6 +24,9 @@ class Matrix
     private float $_near;
     private float $_far;
 
+    // Field of view
+    private float $_fov;
+
     /**
      * @var array<Vector>
      */
@@ -115,7 +118,7 @@ class Matrix
         $this->_matrix[3] = $vtcO;
     }
 
-    private function createScaleMatrix()
+    private function createScaleMatrix(): void
     {
         $vtx = new Vertex(['x' => $this->_scale, 'y' => 0, 'z' => 0, 'w' => 1]);
         $vty = new Vertex(['x' => 0, 'y' => $this->_scale, 'z' => 0, 'w' => 1]);
@@ -134,7 +137,7 @@ class Matrix
         $this->_matrix[3] = $vtcO;
     }
 
-    private function createTranslationMatrix()
+    private function createTranslationMatrix(): void
     {
         $vtx = new Vertex(['x' => 1, 'y' => 0, 'z' => 0, 'w' => 1]);
         $vty = new Vertex(['x' => 0, 'y' => 1, 'z' => 0, 'w' => 1]);
@@ -153,7 +156,7 @@ class Matrix
         $this->_matrix[3] = $vtcO;
     }
 
-    private function createRxMatrix()
+    private function createRxMatrix(): void
     {
         $vtx = new Vertex(['x' => 1, 'y' => 0, 'z' => 0, 'w' => 1]);
         $vty = new Vertex(['x' => 0, 'y' => cos($this->_angle), 'z' => sin($this->_angle), 'w' => 1]);
@@ -172,7 +175,7 @@ class Matrix
         $this->_matrix[3] = $vtcO;
     }
 
-    private function createRyMatrix()
+    private function createRyMatrix(): void
     {
         $vtx = new Vertex(['x' => cos($this->_angle), 'y' => 0, 'z' => -sin($this->_angle), 'w' => 1]);
         $vty = new Vertex(['x' => 0, 'y' => 1, 'z' => 0, 'w' => 1]);
@@ -191,7 +194,7 @@ class Matrix
         $this->_matrix[3] = $vtcO;
     }
 
-    private function createRzMatrix()
+    private function createRzMatrix(): void
     {
         $vtx = new Vertex(['x' => cos($this->_angle), 'y' => sin($this->_angle), 'z' => 0, 'w' => 1]);
         $vty = new Vertex(['x' => -sin($this->_angle), 'y' => cos($this->_angle), 'z' => 0, 'w' => 1]);
@@ -210,7 +213,7 @@ class Matrix
         $this->_matrix[3] = $vtcO;
     }
 
-    private function createProjectionMatrix()
+    private function createProjectionMatrix(): void
     {
         $scale =  1 / tan(0.5 * deg2rad($this->_fov)); 
         $vtx = new Vertex(['x' => $scale / $this->_ratio, 'y' => 0, 'z' => 0, 'w' => 1]);
@@ -249,11 +252,17 @@ class Matrix
         return sprintf("%sx | %s\ny | %s\nz | %s\nw | %s\n", $output, $lineX, $lineY, $lineZ, $lineO);
     }
 
+    /**
+     * @return void
+     */
     public function __destruct()
     {
     }
 
-    public function __toString()
+    /**
+     * @return string
+     */
+    public function __toString(): string
     {
         return $this->outputMatrix();
     }
