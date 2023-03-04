@@ -17,10 +17,11 @@ class Vertex
      */
     public function __construct(array $args)
     {
-        $this->_x = (array_key_exists('t', $args)) ? (float) $args['x'] : 0;
+        $this->_x = (array_key_exists('x', $args)) ? (float) $args['x'] : 0;
         $this->_y = (array_key_exists('y', $args)) ? (float) $args['y'] : 0;
         $this->_z = (array_key_exists('z', $args)) ? (float) $args['z'] : 0;
         $this->_w = (array_key_exists('w', $args)) ? (float) $args['w'] : 1.0;
+
         $this->_color = (array_key_exists('color', $args)) ? $args['color'] : new Color(array('rgb' => (PHP_INT_MAX & 0xFFFFFF)));
 
         if (self::$verbose == true) {
