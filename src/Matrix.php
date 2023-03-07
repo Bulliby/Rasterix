@@ -12,7 +12,7 @@ class Matrix
     public const TRANSLATION = "TRANSLATION";
     public const PROJECTION = "PROJECTION";
 
-    public const SIZE = 4;
+   public const SIZE = 4;
 
     private float $_scale;
     // Radian
@@ -42,7 +42,6 @@ class Matrix
         if (false === array_key_exists('preset', $args)) {
             throw new InvalidArgumentsException();
         }
-
         switch ($args['preset']) {
             case self::IDENTITY:
                 $this->createIdentityMatrix();
@@ -60,12 +59,14 @@ class Matrix
                 }
                 $this->_angle = $args['angle'];
                 $this->createRxMatrix();
+                break;
             case self::RY:
                 if (false === array_key_exists('angle', $args)) {
                     throw new InvalidArgumentsException();
                 }
                 $this->_angle = $args['angle'];
                 $this->createRyMatrix();
+                break;
             case self::RZ:
                 if (false === array_key_exists('angle', $args)) {
                     throw new InvalidArgumentsException();
@@ -137,30 +138,12 @@ class Matrix
         $this->_matrix[3] = $vtcO;
     }
 
-    private function createTranslationMatrix(): void
-    {
-        $vtx = new Vertex(['x' => 1, 'y' => 0, 'z' => 0, 'w' => 1]);
-        $vty = new Vertex(['x' => 0, 'y' => 1, 'z' => 0, 'w' => 1]);
-        $vtz = new Vertex(['x' => 0, 'y' => 0, 'z' => 1, 'w' => 1]);
-        $vto = new Vertex(['x' => $this->_vtc->getX(), 'y' => $this->_vtc->getY(), 'z' => $this->_vtc->getZ(), 'w' => 2]);
-
-        $vtcX = new Vector(['dest' => $vtx]);
-        $vtcY = new Vector(['dest' => $vty]);
-        $vtcZ = new Vector(['dest' => $vtz]);
-        $vtcO = new Vector(['dest' => $vto]);
-
-
-        $this->_matrix[0] = $vtcX;
-        $this->_matrix[1] = $vtcY;
-        $this->_matrix[2] = $vtcZ;
-        $this->_matrix[3] = $vtcO;
-    }
 
     private function createRxMatrix(): void
     {
         $vtx = new Vertex(['x' => 1, 'y' => 0, 'z' => 0, 'w' => 1]);
-        $vty = new Vertex(['x' => 0, 'y' => cos($this->_angle), 'z' => sin($this->_angle), 'w' => 1]);
-        $vtz = new Vertex(['x' => 0, 'y' => -sin($this->_angle), 'z' => cos($this->_angle), 'w' => 1]);
+        $vty = new Vertex(['x' => 0, 'y' => cos($this->_angle), 'z' => -sin($this->_angle), 'w' => 1]);
+        $vtz = new Vertex(['x' => 0, 'y' => sin($this->_angle), 'z' => cos($this->_angle), 'w' => 1]);
         $vto = new Vertex(['x' => 0, 'y' => 0, 'z' => 0, 'w' => 2]);
 
         $vtcX = new Vector(['dest' => $vtx]);
@@ -177,9 +160,9 @@ class Matrix
 
     private function createRyMatrix(): void
     {
-        $vtx = new Vertex(['x' => cos($this->_angle), 'y' => 0, 'z' => -sin($this->_angle), 'w' => 1]);
+        $vtx = new Vertex(['x' => cos($this->_angle), 'y' => 0, 'z' => sin($this->_angle), 'w' => 1]);
         $vty = new Vertex(['x' => 0, 'y' => 1, 'z' => 0, 'w' => 1]);
-        $vtz = new Vertex(['x' => sin($this->_angle), 'y' => 0, 'z' => cos($this->_angle), 'w' => 1]);
+        $vtz = new Vertex(['x' => -sin($this->_angle), 'y' => 0, 'z' => cos($this->_angle), 'w' => 1]);
         $vto = new Vertex(['x' => 0, 'y' => 0, 'z' => 0, 'w' => 2]);
 
         $vtcX = new Vector(['dest' => $vtx]);
@@ -196,8 +179,8 @@ class Matrix
 
     private function createRzMatrix(): void
     {
-        $vtx = new Vertex(['x' => cos($this->_angle), 'y' => sin($this->_angle), 'z' => 0, 'w' => 1]);
-        $vty = new Vertex(['x' => -sin($this->_angle), 'y' => cos($this->_angle), 'z' => 0, 'w' => 1]);
+        $vtx = new Vertex(['x' => cos($this->_angle), 'y' => -sin($this->_angle), 'z' => 0, 'w' => 1]);
+        $vty = new Vertex(['x' => sin($this->_angle), 'y' => cos($this->_angle), 'z' => 0, 'w' => 1]);
         $vtz = new Vertex(['x' => 0, 'y' => 0, 'z' => 1, 'w' => 1]);
         $vto = new Vertex(['x' => 0, 'y' => 0, 'z' => 0, 'w' => 2]);
 
@@ -250,6 +233,57 @@ class Matrix
         }
 
         return sprintf("%sx | %s\ny | %s\nz | %s\nw | %s\n", $output, $lineX, $lineY, $lineZ, $lineO);
+    }
+
+    private function createTranslationMatrix(): void
+    {
+        $vtx = new Vertex(['x' => 1, 'y' => 0, 'z' => 0, 'w' => 1]);
+        $vty = new Vertex(['x' => 0, 'y' => 1, 'z' => 0, 'w' => 1]);
+        $vtz = new Vertex(['x' => 0, 'y' => 0, 'z' => 1, 'w' => 1]);
+        $vto = new Vertex(['x' => $this->_vtc->getX(), 'y' => $this->_vtc->getY(), 'z' => $this->_vtc->getZ(), 'w' => 2]);
+
+        $vtcX = new Vector(['dest' => $vtx]);
+        $vtcY = new Vector(['dest' => $vty]);
+        $vtcZ = new Vector(['dest' => $vtz]);
+        $vtcO = new Vector(['dest' => $vto]);
+
+
+        $this->_matrix[0] = $vtcX;
+        $this->_matrix[1] = $vtcY;
+        $this->_matrix[2] = $vtcZ;
+        $this->_matrix[3] = $vtcO;
+    }
+
+    public function applyTransaltion(Vertex $point): Vertex
+    {
+        return new Vertex([
+            'x' => $point->getX() + $this->_matrix[3]->getX(),
+            'y' => $point->getY() + $this->_matrix[3]->getY(),
+            'z' => $point->getZ() + $this->_matrix[3]->getZ(),
+            'w' => 1,
+        ]);
+    }
+
+    public function multiplication (Vertex $point): Vertex
+    {
+        return new Vertex([
+            'x' => $point->getX() * $this->_matrix[0]->getX() 
+                + $point->getY() * $this->_matrix[0]->getY() 
+                + $point->getZ() * $this->_matrix[0]->getZ() 
+                + $this->_matrix[0]->getW(),
+            'y' => $point->getX() * $this->_matrix[1]->getX() 
+                + $point->getY() * $this->_matrix[1]->getY() 
+                + $point->getZ() * $this->_matrix[1]->getZ() 
+                + $this->_matrix[1]->getW(),
+            'z' => $point->getX() * $this->_matrix[2]->getX() 
+                + $point->getY() * $this->_matrix[2]->getY() 
+                + $point->getZ() * $this->_matrix[2]->getZ() 
+                + $this->_matrix[2]->getW(),
+            'w' => $point->getX() * $this->_matrix[3]->getX() 
+                + $point->getY() * $this->_matrix[3]->getY() 
+                + $point->getZ() * $this->_matrix[3]->getZ() 
+                + $this->_matrix[3]->getW()
+        ]);
     }
 
     /**

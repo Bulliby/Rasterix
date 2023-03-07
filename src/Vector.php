@@ -28,7 +28,7 @@ class Vector
         $this->_x = $this->dest->getX() - $this->orig->getX();
         $this->_y = $this->dest->getY() - $this->orig->getY();
         $this->_z = $this->dest->getZ() - $this->orig->getZ();
-        $this->_w = $this->dest->getW() - $this->orig->getW();
+        //$this->_w = $this->dest->getW() - $this->orig->getW();
 
         if (self::$verbose == true) {
             printf(
@@ -36,7 +36,7 @@ class Vector
                 $this->getX(),
                 $this->getY(),
                 $this->getZ(),
-                $this->getW()
+                //$this->getW()
             );
         }
 
@@ -139,6 +139,9 @@ class Vector
         return new Vector(['dest' => $vertex]);
     }
 
+    /**
+     * @return void
+     */
     public function __destruct()
     {
         if (self::$verbose == true) {
