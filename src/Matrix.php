@@ -11,26 +11,24 @@ class Matrix
     public const RZ = "RZ";
     public const TRANSLATION = "TRANSLATION";
     public const PROJECTION = "PROJECTION";
+    public const MATRIX = "MATRIX";
 
-   public const SIZE = 4;
+    public const SIZE = 4;
 
-    private float $_scale;
+    private float $scale;
     // Radian
-    private float $_angle;
-    private Vector $_vtc;
+    private float $angle;
+    private Vector $vtc;
 
     // Projection
-    private float $_ratio;
-    private float $_near;
-    private float $_far;
+    private float $ratio;
+    private float $near;
+    private float $far;
 
     // Field of view
-    private float $_fov;
+    private float $fov;
 
-    /**
-     * @var array<Vector>
-     */
-    private array $_matrix = [];
+    public array $matrix = [];
 
     public static bool $verbose = false;
 
@@ -50,35 +48,35 @@ class Matrix
                 if (false === array_key_exists('scale', $args)) {
                     throw new InvalidArgumentsException();
                 }
-                $this->_scale = $args['scale'];
+                $this->scale = $args['scale'];
                 $this->createScaleMatrix();
                 break;
             case self::RX:
                 if (false === array_key_exists('angle', $args)) {
                     throw new InvalidArgumentsException();
                 }
-                $this->_angle = $args['angle'];
+                $this->angle = $args['angle'];
                 $this->createRxMatrix();
                 break;
             case self::RY:
                 if (false === array_key_exists('angle', $args)) {
                     throw new InvalidArgumentsException();
                 }
-                $this->_angle = $args['angle'];
+                $this->angle = $args['angle'];
                 $this->createRyMatrix();
                 break;
             case self::RZ:
                 if (false === array_key_exists('angle', $args)) {
                     throw new InvalidArgumentsException();
                 }
-                $this->_angle = $args['angle'];
+                $this->angle = $args['angle'];
                 $this->createRzMatrix();
                 break;
             case self::TRANSLATION:
                 if (false === array_key_exists('vtc', $args)) {
                     throw new InvalidArgumentsException();
                 }
-                $this->_vtc = $args['vtc'];
+                $this->vtc = $args['vtc'];
                 $this->createTranslationMatrix();
                 break;
             case self::PROJECTION:
@@ -89,10 +87,10 @@ class Matrix
                 ) {
                     throw new InvalidArgumentsException();
                 }
-                $this->_fov = $args['fov'];
-                $this->_ratio = $args['ratio'];
-                $this->_near = $args['near'];
-                $this->_far = $args['far'];
+                $this->fov = $args['fov'];
+                $this->ratio = $args['ratio'];
+                $this->near = $args['near'];
+                $this->far = $args['far'];
                 $this->createProjectionMatrix();
                 break;
             default:
@@ -100,120 +98,77 @@ class Matrix
         }
     }
 
-    private function createIdentityMatrix(): void
+    private function createIdentityMatrix(): array
     {
-        $vtx = new Vertex(['x' => 1, 'y' => 0, 'z' => 0, 'w' => 1]);
-        $vty = new Vertex(['x' => 0, 'y' => 1, 'z' => 0, 'w' => 1]);
-        $vtz = new Vertex(['x' => 0, 'y' => 0, 'z' => 1, 'w' => 1]);
-        $vto = new Vertex(['x' => 0, 'y' => 0, 'z' => 0, 'w' => 2]);
-
-        $vtcX = new Vector(['dest' => $vtx]);
-        $vtcY = new Vector(['dest' => $vty]);
-        $vtcZ = new Vector(['dest' => $vtz]);
-        $vtcO = new Vector(['dest' => $vto]);
-
-
-        $this->_matrix[0] = $vtcX;
-        $this->_matrix[1] = $vtcY;
-        $this->_matrix[2] = $vtcZ;
-        $this->_matrix[3] = $vtcO;
+        return $this->matrix = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1],
+        ];
     }
 
-    private function createScaleMatrix(): void
+    private function createTranslationMatrix(): array
     {
-        $vtx = new Vertex(['x' => $this->_scale, 'y' => 0, 'z' => 0, 'w' => 1]);
-        $vty = new Vertex(['x' => 0, 'y' => $this->_scale, 'z' => 0, 'w' => 1]);
-        $vtz = new Vertex(['x' => 0, 'y' => 0, 'z' => $this->_scale, 'w' => 1]);
-        $vto = new Vertex(['x' => 0, 'y' => 0, 'z' => 0, 'w' => 2]);
+        return $this->matrix = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [$this->vtc->getX(), $this->vtc->getY(), $this->vtc->getZ(), 1],
+        ];
+    }
 
-        $vtcX = new Vector(['dest' => $vtx]);
-        $vtcY = new Vector(['dest' => $vty]);
-        $vtcZ = new Vector(['dest' => $vtz]);
-        $vtcO = new Vector(['dest' => $vto]);
-
-
-        $this->_matrix[0] = $vtcX;
-        $this->_matrix[1] = $vtcY;
-        $this->_matrix[2] = $vtcZ;
-        $this->_matrix[3] = $vtcO;
+    private function createScaleMatrix(): array
+    {
+        return $this->matrix = [
+            [$this->scale, 0, 0, 0],
+            [0, $this->scale, 0, 0],
+            [0, 0, $this->scale, 0],
+            [0, 0, 0, 1],
+        ];
     }
 
 
-    private function createRxMatrix(): void
+    private function createRxMatrix(): array
     {
-        $vtx = new Vertex(['x' => 1, 'y' => 0, 'z' => 0, 'w' => 1]);
-        $vty = new Vertex(['x' => 0, 'y' => cos($this->_angle), 'z' => -sin($this->_angle), 'w' => 1]);
-        $vtz = new Vertex(['x' => 0, 'y' => sin($this->_angle), 'z' => cos($this->_angle), 'w' => 1]);
-        $vto = new Vertex(['x' => 0, 'y' => 0, 'z' => 0, 'w' => 2]);
-
-        $vtcX = new Vector(['dest' => $vtx]);
-        $vtcY = new Vector(['dest' => $vty]);
-        $vtcZ = new Vector(['dest' => $vtz]);
-        $vtcO = new Vector(['dest' => $vto]);
-
-
-        $this->_matrix[0] = $vtcX;
-        $this->_matrix[1] = $vtcY;
-        $this->_matrix[2] = $vtcZ;
-        $this->_matrix[3] = $vtcO;
+        return $this->matrix = [
+            [1, 0, 0, 0],
+            [0, cos($this->angle), sin($this->angle), 0],
+            [0, -sin($this->angle), cos($this->angle), 0],
+            [0, 0, 0, 1],
+        ];
     }
 
-    private function createRyMatrix(): void
+    private function createRyMatrix(): array
     {
-        $vtx = new Vertex(['x' => cos($this->_angle), 'y' => 0, 'z' => sin($this->_angle), 'w' => 1]);
-        $vty = new Vertex(['x' => 0, 'y' => 1, 'z' => 0, 'w' => 1]);
-        $vtz = new Vertex(['x' => -sin($this->_angle), 'y' => 0, 'z' => cos($this->_angle), 'w' => 1]);
-        $vto = new Vertex(['x' => 0, 'y' => 0, 'z' => 0, 'w' => 2]);
-
-        $vtcX = new Vector(['dest' => $vtx]);
-        $vtcY = new Vector(['dest' => $vty]);
-        $vtcZ = new Vector(['dest' => $vtz]);
-        $vtcO = new Vector(['dest' => $vto]);
-
-
-        $this->_matrix[0] = $vtcX;
-        $this->_matrix[1] = $vtcY;
-        $this->_matrix[2] = $vtcZ;
-        $this->_matrix[3] = $vtcO;
+        return $this->matrix = [
+            [cos($this->angle), 0, -sin($this->angle), 0],
+            [0, 1, 0, 0],
+            [sin($this->angle), 0, cos($this->angle), 0],
+            [0, 0, 0, 1],
+        ];
     }
 
-    private function createRzMatrix(): void
+    private function createRzMatrix(): array
     {
-        $vtx = new Vertex(['x' => cos($this->_angle), 'y' => -sin($this->_angle), 'z' => 0, 'w' => 1]);
-        $vty = new Vertex(['x' => sin($this->_angle), 'y' => cos($this->_angle), 'z' => 0, 'w' => 1]);
-        $vtz = new Vertex(['x' => 0, 'y' => 0, 'z' => 1, 'w' => 1]);
-        $vto = new Vertex(['x' => 0, 'y' => 0, 'z' => 0, 'w' => 2]);
-
-        $vtcX = new Vector(['dest' => $vtx]);
-        $vtcY = new Vector(['dest' => $vty]);
-        $vtcZ = new Vector(['dest' => $vtz]);
-        $vtcO = new Vector(['dest' => $vto]);
-
-
-        $this->_matrix[0] = $vtcX;
-        $this->_matrix[1] = $vtcY;
-        $this->_matrix[2] = $vtcZ;
-        $this->_matrix[3] = $vtcO;
+        return $this->matrix = [
+            [cos($this->angle), sin($this->angle), 0, 0],
+            [-sin($this->angle), cos($this->angle), 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1],
+        ];
     }
 
-    private function createProjectionMatrix(): void
+    private function createProjectionMatrix(): array
     {
-        $scale =  1 / tan(0.5 * deg2rad($this->_fov)); 
-        $vtx = new Vertex(['x' => $scale / $this->_ratio, 'y' => 0, 'z' => 0, 'w' => 1]);
-        $vty = new Vertex(['x' => 0, 'y' => $scale, 'z' => 0, 'w' => 1]);
-        $vtz = new Vertex(['x' => 0, 'y' => 0, 'z' => - 1 * (- $this->_near - $this->_far) / ($this->_near - $this->_far), 'w' => 0]);
-        $vto = new Vertex(['x' => 0, 'y' => 0, 'z' => (2 * $this->_near * $this->_far) /($this->_near - $this->_far), 'w' => 1]);
+        $scale =  1 / tan(0.5 * deg2rad($this->fov)); 
 
-        $vtcX = new Vector(['dest' => $vtx]);
-        $vtcY = new Vector(['dest' => $vty]);
-        $vtcZ = new Vector(['dest' => $vtz]);
-        $vtcO = new Vector(['dest' => $vto]);
-
-
-        $this->_matrix[0] = $vtcX;
-        $this->_matrix[1] = $vtcY;
-        $this->_matrix[2] = $vtcZ;
-        $this->_matrix[3] = $vtcO;
+        return $this->matrix = [
+            [$scale / $this->ratio, 0, 0, 0],
+            [0, $scale, 0, 0],
+            [0, 0, -1 * (-$this->near - $this->far) / ($this->near - $this->far), -1],
+            [0, 0, (2 * $this->near * $this->far) / ($this->near - $this->far), 0],
+        ];
     }
 
     private function outputMatrix(): string
@@ -225,65 +180,49 @@ class Matrix
         $lineZ = "";
         $lineO = "";
 
-        for ($x = 0; $x != self::SIZE; $x++) {
-            $lineX .= sprintf("%.2f | ", $this->_matrix[$x]->getX());
-            $lineY .= sprintf("%.2f | ", $this->_matrix[$x]->getY());
-            $lineZ .= sprintf("%.2f | ", $this->_matrix[$x]->getZ());
-            $lineO .= sprintf("%.2f | ", $this->_matrix[$x]->getW());
+        for ($j = 0; $j != self::SIZE; $j++) {
+            $lineX .= sprintf("%.2f | ", $this->matrix[$j][0]);
+            $lineY .= sprintf("%.2f | ", $this->matrix[$j][1]);
+            $lineZ .= sprintf("%.2f | ", $this->matrix[$j][2]);
+            $lineO .= sprintf("%.2f | ", $this->matrix[$j][3]);
         }
 
         return sprintf("%sx | %s\ny | %s\nz | %s\nw | %s\n", $output, $lineX, $lineY, $lineZ, $lineO);
     }
 
-    private function createTranslationMatrix(): void
+    public function multiplication (Vertex $vertex): Vertex
     {
-        $vtx = new Vertex(['x' => 1, 'y' => 0, 'z' => 0, 'w' => 1]);
-        $vty = new Vertex(['x' => 0, 'y' => 1, 'z' => 0, 'w' => 1]);
-        $vtz = new Vertex(['x' => 0, 'y' => 0, 'z' => 1, 'w' => 1]);
-        $vto = new Vertex(['x' => $this->_vtc->getX(), 'y' => $this->_vtc->getY(), 'z' => $this->_vtc->getZ(), 'w' => 2]);
+        $vertex = $vertex->toArray();
 
-        $vtcX = new Vector(['dest' => $vtx]);
-        $vtcY = new Vector(['dest' => $vty]);
-        $vtcZ = new Vector(['dest' => $vtz]);
-        $vtcO = new Vector(['dest' => $vto]);
+        $ret = [];
 
+        for ($i = 0; $i != self::SIZE; $i++)
+        {
+            for($j = 0; $j != self::SIZE; $j++)
+            {
+                $ret[] += $vertex[$j] * $this->matrix[$j][$i];
+            }
+        }
 
-        $this->_matrix[0] = $vtcX;
-        $this->_matrix[1] = $vtcY;
-        $this->_matrix[2] = $vtcZ;
-        $this->_matrix[3] = $vtcO;
+        return Vertex::toVertex($ret);
     }
 
-    public function applyTransaltion(Vertex $point): Vertex
+    public function mult($rhs): self
     {
-        return new Vertex([
-            'x' => $point->getX() + $this->_matrix[3]->getX(),
-            'y' => $point->getY() + $this->_matrix[3]->getY(),
-            'z' => $point->getZ() + $this->_matrix[3]->getZ(),
-            'w' => 1,
-        ]);
-    }
+        $ret = new Matrix(['preset' => self::IDENTITY]);
 
-    public function multiplication (Vertex $point): Vertex
-    {
-        return new Vertex([
-            'x' => $point->getX() * $this->_matrix[0]->getX() 
-                + $point->getY() * $this->_matrix[0]->getY() 
-                + $point->getZ() * $this->_matrix[0]->getZ() 
-                + $this->_matrix[0]->getW(),
-            'y' => $point->getX() * $this->_matrix[1]->getX() 
-                + $point->getY() * $this->_matrix[1]->getY() 
-                + $point->getZ() * $this->_matrix[1]->getZ() 
-                + $this->_matrix[1]->getW(),
-            'z' => $point->getX() * $this->_matrix[2]->getX() 
-                + $point->getY() * $this->_matrix[2]->getY() 
-                + $point->getZ() * $this->_matrix[2]->getZ() 
-                + $this->_matrix[2]->getW(),
-            'w' => $point->getX() * $this->_matrix[3]->getX() 
-                + $point->getY() * $this->_matrix[3]->getY() 
-                + $point->getZ() * $this->_matrix[3]->getZ() 
-                + $this->_matrix[3]->getW()
-        ]);
+        for ($i = 0; $i != self::SIZE; $i++)
+        {
+            for($j = 0; $j != self::SIZE; $j++)
+            {
+                $ret->matrix[$i][$j] =  $rhs->matrix[$i][0] * $this->matrix[0][$j] + 
+                    $rhs->matrix[$i][1] * $this->matrix[1][$j] +
+                    $rhs->matrix[$i][2] * $this->matrix[2][$j] +
+                    $rhs->matrix[$i][3] * $this->matrix[3][$j];
+            }
+        }
+
+        return $ret; 
     }
 
     /**
@@ -308,26 +247,38 @@ class Matrix
 
     public function getAngle(): float
     {
-        return $this->_angle;
+        return $this->angle;
     }
 
     public function getVtc(): Vector
     {
-        return $this->_vtc;
+        return $this->vtc;
     }
 
     public function getRatio(): float
     {
-        return $this->_ratio;
+        return $this->ratio;
     }
 
     public function getNear(): float
     {
-        return $this->_near;
+        return $this->near;
     }
 
     public function getFar(): float
     {
-        return $this->_far;
+        return $this->far;
+    }
+
+    public function getMatrix(): array
+    {
+        return $this->matrix;
+    }
+
+    public function setMatrix(array $rhs): self
+    {
+        $this->matrix = $rhs;
+
+        return $this;
     }
 }

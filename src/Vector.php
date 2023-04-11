@@ -4,10 +4,10 @@ namespace Waxer\Rasterix;
 
 class Vector
 {
-    private float $_x;
-    private float $_y;
-    private float $_z;
-    private float $_w = 0.0;
+    private float $x;
+    private float $y;
+    private float $z;
+    private float $w;
     private Vertex $dest;
     private Vertex $orig;
 
@@ -23,12 +23,12 @@ class Vector
         }
 
         $this->dest = $args['dest'];
-        $this->orig = (array_key_exists('orig', $args)) ? $args['orig'] : new Vertex([]);
+        $this->orig = $args['orig'] ?? new Vertex([]);
 
-        $this->_x = $this->dest->getX() - $this->orig->getX();
-        $this->_y = $this->dest->getY() - $this->orig->getY();
-        $this->_z = $this->dest->getZ() - $this->orig->getZ();
-        //$this->_w = $this->dest->getW() - $this->orig->getW();
+        $this->x = $this->dest->getX() - $this->orig->getX();
+        $this->y = $this->dest->getY() - $this->orig->getY();
+        $this->z = $this->dest->getZ() - $this->orig->getZ();
+        $this->w = $this->dest->getW() - $this->orig->getW();
 
         if (self::$verbose == true) {
             printf(
@@ -36,7 +36,7 @@ class Vector
                 $this->getX(),
                 $this->getY(),
                 $this->getZ(),
-                //$this->getW()
+                $this->getW()
             );
         }
 
@@ -45,22 +45,22 @@ class Vector
 
     public function getX(): float
     {
-        return $this->_x;
+        return $this->x;
     }
 
     public function getY(): float
     {
-        return $this->_y;
+        return $this->y;
     }
 
     public function getZ(): float
     {
-        return $this->_z;
+        return $this->z;
     }
 
     public function getW(): float
     {
-        return $this->_w;
+        return $this->w;
     }
 
     public function __toString(): string
@@ -76,7 +76,7 @@ class Vector
 
     public function magnitude(): float
     {
-        return sqrt(pow($this->_x, 2) + pow($this->_y, 2) + pow($this->_z, 2));
+        return sqrt(pow($this->x, 2) + pow($this->y, 2) + pow($this->z, 2));
     }
 
     public function normalize(): Vector
@@ -85,14 +85,14 @@ class Vector
             return clone $this;
         }
 
-        $vertex = new Vertex(['x' => $this->_x / $this->magnitude(), 'y' => $this->_y / $this->magnitude(), 'z' => $this->_z  / $this->magnitude(), 'w' => $this->_w]);
+        $vertex = new Vertex(['x' => $this->x / $this->magnitude(), 'y' => $this->y / $this->magnitude(), 'z' => $this->z  / $this->magnitude()]);
 
         return new Vector(['dest' => $vertex]);
     }
 
     public function add(Vector $rhs): Vector
     {
-        $vertex = new Vertex(['x' => $this->_x + $rhs->getX(), 'y' => $this->_y + $rhs->getY(), 'z' => $this->_z + $rhs->getZ()]);
+        $vertex = new Vertex(['x' => $this->x + $rhs->getX(), 'y' => $this->y + $rhs->getY(), 'z' => $this->z + $rhs->getZ()]);
 
         unset($rhs);
 
@@ -101,7 +101,7 @@ class Vector
 
     public function sub(Vector $rhs): Vector
     {
-        $vertex = new Vertex(['x' => $this->_x - $rhs->getX(), 'y' => $this->_y - $rhs->getY(), 'z' => $this->_z - $rhs->getZ()]);
+        $vertex = new Vertex(['x' => $this->x - $rhs->getX(), 'y' => $this->y - $rhs->getY(), 'z' => $this->z - $rhs->getZ()]);
 
         unset($rhs);
 
@@ -110,21 +110,21 @@ class Vector
 
     public function opposite(): Vector
     {
-        $vertex = new Vertex(['x' => $this->_x * -1, 'y' => $this->_y * -1, 'z' => $this->_z * -1]);
+        $vertex = new Vertex(['x' => $this->x * -1, 'y' => $this->y * -1, 'z' => $this->z * -1]);
 
         return new Vector(['dest' => $vertex]);
     }
 
     public function scalarProduct(int $k): Vector
     {
-        $vertex = new Vertex(['x' => $this->_x * $k, 'y' => $this->_y * $k, 'z' => $this->_z * $k]);
+        $vertex = new Vertex(['x' => $this->x * $k, 'y' => $this->y * $k, 'z' => $this->z * $k]);
 
         return new Vector(['dest' => $vertex]);
     }
 
     public function dotProduct(Vector $rhs): float
     {
-        return $this->_x * $rhs->getX() + $this->_y * $rhs->getY() + $this->_z * $rhs->getZ();
+        return $this->x * $rhs->getX() + $this->y * $rhs->getY() + $this->z * $rhs->getZ();
     }
 
     public function cos(Vector $rhs): float
@@ -134,7 +134,7 @@ class Vector
 
     public function crossProduct(Vector $rhs): Vector
     {
-        $vertex = new Vertex(['x' => $this->_y * $rhs->getZ() - $this->_z * $rhs->getY(), 'y' => $this->_z * $rhs->getX() - $this->_x * $rhs->getZ(), 'z' => $this->_x * $rhs->getY() - $this->_y * $rhs->getX()]);
+        $vertex = new Vertex(['x' => $this->y * $rhs->getZ() - $this->z * $rhs->getY(), 'y' => $this->z * $rhs->getX() - $this->x * $rhs->getZ(), 'z' => $this->x * $rhs->getY() - $this->y * $rhs->getX()]);
 
         return new Vector(['dest' => $vertex]);
     }

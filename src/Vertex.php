@@ -4,12 +4,13 @@ namespace Waxer\Rasterix;
 
 class Vertex
 {
-    private float $_x;
-    private float $_y;
-    private float $_z;
-    private float $_w = 1.0;
-    private Color $_color;
+    private float $x;
+    private float $y;
+    private float $z;
+    private float $w = 1;
+    private Color $color;
     public static bool $verbose = false;
+    public array $array;
 
 
     /**
@@ -17,12 +18,12 @@ class Vertex
      */
     public function __construct(array $args)
     {
-        $this->_x = (array_key_exists('x', $args)) ? (float) $args['x'] : 0;
-        $this->_y = (array_key_exists('y', $args)) ? (float) $args['y'] : 0;
-        $this->_z = (array_key_exists('z', $args)) ? (float) $args['z'] : 0;
-        $this->_w = (array_key_exists('w', $args)) ? (float) $args['w'] : 1.0;
+        $this->x = $args['x'] ?? 0;
+        $this->y = $args['y'] ?? 0;
+        $this->z = $args['z'] ?? 0;
+        $this->w = $args['w'] ?? 1;
 
-        $this->_color = (array_key_exists('color', $args)) ? $args['color'] : new Color(array('rgb' => (PHP_INT_MAX & 0xFFFFFF)));
+        $this->color = $args['color'] ?? new Color(array('rgb' => (PHP_INT_MAX & 0xFFFFFF)));
 
         if (self::$verbose == true) {
             vprintf(
@@ -51,72 +52,85 @@ class Vertex
     private function getParam(): array
     {
         return [
-            $this->_x,
-            $this->_y,
-            $this->_z,
-            $this->_w,
-            $this->_color->red,
-            $this->_color->green,
-            $this->_color->blue
+            $this->x,
+            $this->y,
+            $this->z,
+            $this->w,
+            $this->color->red,
+            $this->color->green,
+            $this->color->blue
         ];
+    }
+
+    /**
+     * @return array<int, float>
+     */
+    public function toArray(): array
+    {
+        return [$this->x, $this->y, $this->z, $this->w];
+    }
+
+    public static function toVertex(array $array): self
+    {
+        return new Vertex(['x' => $array[0], 'y' => $array[1], 'z' => $array[2], 'w' => $array[3]]);
     }
 
     public function getX(): float
     {
-        return $this->_x;
+        return $this->x;
     }
 
     public function getY(): float
     {
-        return $this->_y;
+        return $this->y;
     }
 
     public function getZ(): float
     {
-        return $this->_z;
+        return $this->z;
     }
 
     public function getW(): float
     {
-        return $this->_w;
+        return $this->w;
     }
 
     public function getColor(): Color
     {
-        return $this->_color;
+        return $this->color;
     }
 
     public function setX(float $x): self
     {
-        $this->_x = $x;
+        $this->x = $x;
 
         return $this;
     }
 
     public function setY(float $y): self
     {
-        $this->_y = $y;
+        $this->y = $y;
 
         return $this;
     }
 
     public function setZ(float $z): self
     {
-        $this->_z = $z;
+        $this->z = $z;
 
         return $this;
     }
 
     public function setW(float $w): self
     {
-        $this->_w = $w;
+        $this->w = $w;
 
         return $this;
     }
 
     public function setColor(Color $color): self
     {
-        $this->_color = $color;
+        $this->color = $color;
 
         return $this;
     }
@@ -131,10 +145,10 @@ class Vertex
         } else {
             return	sprintf(
                 'Vertex( x: %.2f, y: %.2f, z:%.2f, w:%.2f )',
-                $this->_x,
-                $this->_y,
-                $this->_z,
-                $this->_w
+                $this->x,
+                $this->y,
+                $this->z,
+                $this->w
             );
         }
     }
