@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <title>Hello, world!</title>
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta name="description" content="" />
+        <link rel="icon" href="favicon.png">
+        <script defer src="rasterix.js"></script>
+    </head>
+    <div class="container">
+        <iframe id="render" title="Rasterix render window" width="890" height="890" src="http://localhost:8083/index2.php"></iframe>
+        <form>
+            <h3>Scale</h3>
+            <button id="scale-up">+</button>
+            <button id="scale-down">-</button>
+        </form>
+    </div>
+</html>
+
+<style>
+* {
+    margin-block-start: 0;
+    margin-block-end: 0;
+}
+ body {
+     margin: 0;
+     overflow: hidden;
+ }
+ .container {
+     display: flex;
+ }
+</style>
