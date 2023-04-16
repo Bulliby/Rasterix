@@ -10,7 +10,6 @@ class Vertex
     private float $w = 1;
     private Color $color;
     public static bool $verbose = false;
-    public array $array;
 
 
     /**
@@ -72,7 +71,7 @@ class Vertex
 
     public static function toVertex(array $array): self
     {
-        return new Vertex(['x' => $array[0], 'y' => $array[1], 'z' => $array[2], 'w' => $array[3]]);
+        return new Vertex(['x' => $array[0], 'y' => $array[1], 'z' => $array[2], 'w' => 1]);
     }
 
     public function getX(): float

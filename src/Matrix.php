@@ -190,7 +190,7 @@ class Matrix
         return sprintf("%sx | %s\ny | %s\nz | %s\nw | %s\n", $output, $lineX, $lineY, $lineZ, $lineO);
     }
 
-    public function multiplication (Vertex $vertex): Vertex
+    public function multiplication(Vertex $vertex): Vertex
     {
         $vertex = $vertex->toArray();
 
@@ -200,14 +200,14 @@ class Matrix
         {
             for($j = 0; $j != self::SIZE; $j++)
             {
-                $ret[] += $vertex[$j] * $this->matrix[$j][$i];
+                $ret[$i] += $vertex[$j] * $this->matrix[$j][$i];
             }
         }
 
         return Vertex::toVertex($ret);
     }
 
-    public function mult($rhs): self
+    public function mult(Matrix $rhs): self
     {
         $ret = new Matrix(['preset' => self::IDENTITY]);
 
