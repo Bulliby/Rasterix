@@ -1,23 +1,11 @@
 <?php
 
-
 use Waxer\Rasterix\Color;
 use Waxer\Rasterix\Matrix;
 use Waxer\Rasterix\Vector;
 use Waxer\Rasterix\Vertex;
 
 require_once '/srv/http/vendor/autoload.php';
-
-session_start();
-if (empty($_SESSION['scale'])) {
-    $_SESSION['scale'] = 0;
-}
-
-if (!empty($_POST['scale'])) {
-    $_SESSION['scale'] += (int) $_POST['scale'];
-    var_dump($_SESSION['scale']);
-    exit(0);
-}
 
 $color = new Color(['red' => 255, 'green' => 0, 'blue' => 0]);
 
@@ -33,15 +21,13 @@ $corner6 = new Vertex( array( 'x' => -1, 'y' => -1, 'z' => -3, 'color' => $color
 $corner7 = new Vertex( array( 'x' => -1, 'y' => 1, 'z' => -5, 'color' => $color ) );
 $corner8 = new Vertex( array( 'x' => -1, 'y' => 1, 'z' => -3, 'color' => $color ) );
 
-$vtx = new Vertex( array( 'x' => 10.0, 'y' => -200.0) );
-$vtc = new Vector( array( 'dest' => $vtx ) );
-$rrx = new Matrix(['preset' => 'SCALE', 'scale' => 1]);
-$ttx = new Matrix(['preset' => 'TRANSLATION', 'vtc' => $vtc]);
-
 $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7, $corner8];
+
+$S = new Matrix( array( 'preset' => Matrix::SCALE, 'scale' => 50) );
 
 foreach ($corners as &$corner) 
 {
+    $corner = $S->multiplication($corner);
     $x_proj = $corner->getX() / - $corner->getZ();
     $y_proj = $corner->getY() / - $corner->getZ();
     $x_proj_remap = (1 + $x_proj) / 2;
@@ -86,6 +72,7 @@ imagepolygon($image, [
     $corners[3]->getX(), $corners[3]->getY(),
     $corners[2]->getX(), $corners[2]->getY(),
 ], 4, $col_poly);
+
 
 header('Content-type: image/png');
 
