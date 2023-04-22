@@ -69,6 +69,9 @@ class Vertex
         return [$this->x, $this->y, $this->z, $this->w];
     }
 
+    /**
+     * @param array<float> $array
+     */
     public static function toVertex(array $array): self
     {
         return new Vertex(['x' => $array[0], 'y' => $array[1], 'z' => $array[2], 'w' => 1]);

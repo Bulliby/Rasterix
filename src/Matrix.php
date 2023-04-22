@@ -25,9 +25,11 @@ class Matrix
     private float $near;
     private float $far;
 
-    // Field of view
     private float $fov;
-
+    
+    /**
+     * @var array<array<int>> $matrix
+     */
     public array $matrix = [];
 
     public static bool $verbose = false;
@@ -98,6 +100,9 @@ class Matrix
         }
     }
 
+    /**
+     * @return array<array<int>>
+     */
     private function createIdentityMatrix(): array
     {
         return $this->matrix = [
@@ -108,6 +113,9 @@ class Matrix
         ];
     }
 
+    /**
+     * @return array<array<int>>
+     */
     private function createTranslationMatrix(): array
     {
         return $this->matrix = [
@@ -118,6 +126,9 @@ class Matrix
         ];
     }
 
+    /**
+     * @return array<array<int>>
+     */
     private function createScaleMatrix(): array
     {
         return $this->matrix = [
@@ -129,6 +140,9 @@ class Matrix
     }
 
 
+    /**
+     * @return array<array<int>>
+     */
     private function createRxMatrix(): array
     {
         return $this->matrix = [
@@ -139,6 +153,9 @@ class Matrix
         ];
     }
 
+    /**
+     * @return array<array<int>>
+     */
     private function createRyMatrix(): array
     {
         return $this->matrix = [
@@ -149,6 +166,9 @@ class Matrix
         ];
     }
 
+    /**
+     * @return array<array<int>>
+     */
     private function createRzMatrix(): array
     {
         return $this->matrix = [
@@ -159,6 +179,9 @@ class Matrix
         ];
     }
 
+    /**
+     * @return array<array<int>>
+     */
     private function createProjectionMatrix(): array
     {
         $scale =  1 / tan(0.5 * deg2rad($this->fov)); 
@@ -240,11 +263,6 @@ class Matrix
         return $this->outputMatrix();
     }
 
-    public function getScale(): float
-    {
-        return $this->_scale;
-    }
-
     public function getAngle(): float
     {
         return $this->angle;
@@ -270,11 +288,17 @@ class Matrix
         return $this->far;
     }
 
+    /**
+     * @return array<array<int>>
+     */
     public function getMatrix(): array
     {
         return $this->matrix;
     }
 
+    /**
+     * @param array<array<int>> $rhs
+     */
     public function setMatrix(array $rhs): self
     {
         $this->matrix = $rhs;
