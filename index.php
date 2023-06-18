@@ -23,22 +23,23 @@ $corner8 = new Vertex( array( 'x' => -1, 'y' => 1, 'z' => -3, 'color' => $color 
 
 $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7, $corner8];
 
-$vtx = new Vertex(['x' => 100, 'y' => -100, 'z' => 0]);
+$vtx = new Vertex(['x' => 550, 'y' => -300, 'z' => 1]);
 $vtc = new Vector(['dest' => $vtx]);
 $S = new Matrix( array( 'preset' => Matrix::SCALE, 'scale' => 500) );
 $T = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc) );
 $RX = new Matrix( array( 'preset' => Matrix::RX, 'angle' => 1) );
-$RY = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 1) );
+$RY = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 2) );
+$CTW = new Matrix( array( 'preset' => Matrix::CAMERA_TO_WORLD) );
+$WTC = new Matrix( array( 'preset' => Matrix::INVERSE, 'src' => $CTW) );
 
 foreach ($corners as &$corner) 
 {
-    $corner = $S->multiplication($corner);
     $x_proj = $corner->getX() / - $corner->getZ();
     $y_proj = $corner->getY() / - $corner->getZ();
     $x_proj_remap = (1 + $x_proj) / IMAGE_WIDTH;
     $y_proj_remap = (1 + $y_proj) / IMAGE_HEIGHT;
     $corner = new Vertex( array( 'x' => $x_proj_remap * IMAGE_WIDTH, 'y' => $y_proj_remap * IMAGE_HEIGHT, 'color' => $color ) );
-    $corner = $T->mult($RX)->mult($RY)->mult($S)->multiplication($corner);
+    $corner = $CTW->mult($T)->mult($RX)->mult($RY)->mult($S)->multiplication($corner);
 }
 
 $image = imagecreatetruecolor(IMAGE_WIDTH, IMAGE_HEIGHT);

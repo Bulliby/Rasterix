@@ -11,6 +11,8 @@ class Matrix
     public const RZ = "RZ";
     public const TRANSLATION = "TRANSLATION";
     public const PROJECTION = "PROJECTION";
+    public const CAMERA_TO_WORLD = "CAMERA_TO_WORLD";
+    public const INVERSE = "INVERSE";
     public const MATRIX = "MATRIX";
 
     public const SIZE = 4;
@@ -26,7 +28,7 @@ class Matrix
     private float $far;
 
     private float $fov;
-    
+
     /**
      * @var array<array<int>> $matrix
      */
@@ -81,12 +83,21 @@ class Matrix
                 $this->vtc = $args['vtc'];
                 $this->createTranslationMatrix();
                 break;
+            case self::CAMERA_TO_WORLD:
+                $this->cameraToWorld();
+                break;
+            case self::INVERSE:
+                if (false === array_key_exists('src', $args)) {
+                    throw new InvalidArgumentsException();
+                }
+                $this->matInverse($args['src']);
+                break;
             case self::PROJECTION:
                 if (false === array_key_exists('fov', $args)
                     && array_key_exists('ratio', $args)
                     && array_key_exists('near', $args)
                     && array_key_exists('far', $args)
-                ) {
+            ) {
                     throw new InvalidArgumentsException();
                 }
                 $this->fov = $args['fov'];
@@ -96,7 +107,7 @@ class Matrix
                 $this->createProjectionMatrix();
                 break;
             default:
-                throw new InvalidArgumentsException();
+            throw new InvalidArgumentsException();
         }
     }
 
@@ -192,6 +203,73 @@ class Matrix
             [0, 0, -1 * (-$this->near - $this->far) / ($this->near - $this->far), -1],
             [0, 0, (2 * $this->near * $this->far) / ($this->near - $this->far), 0],
         ];
+    }
+
+    /**
+     * Maya One
+     * @return array<array<int>>
+     */
+    public function cameraToWorld(): array
+    {
+        return $this->matrix = [
+            [0.871214, 0, -0.490904, 0,],
+            [-0.192902, 0.919559, -0.342346, 0,],
+            [0.451415, 0.392953, 0.801132, 0,],
+            [14.777467, 29.361945, 27.993464, 1,],
+        ];
+    }
+
+    public function matInverse(Matrix $matrix): Matrix
+    {
+        $identity = $this->createIdentityMatrix();
+        $matrix = $matrix->getMatrix();
+
+        $n = self::SIZE;
+
+        for ($i = 0; $i < $n; $i++) {
+            $matrix[$i] = array_merge($matrix[$i], $identity[$i]);
+        }
+
+        // Appliquer la méthode de Gauss-Jordan pour obtenir l'inverse
+        for ($i = 0; $i < $n; $i++) {
+            // Échanger les lignes si le pivot est nul
+            if ($matrix[$i][$i] == 0) {
+                for ($j = $i + 1; $j < $n; $j++) {
+                    if ($matrix[$j][$i] != 0) {
+                        $temp = $matrix[$i];
+                        $matrix[$i] = $matrix[$j];
+                        $matrix[$j] = $temp;
+                        break;
+                    }
+                }
+            }
+
+            // Diviser la ligne par le pivot
+            $pivot = $matrix[$i][$i];
+            for ($j = 0; $j < 2 * $n; $j++) {
+                $matrix[$i][$j] /= $pivot;
+            }
+
+            // Éliminer les autres éléments de la colonne du pivot
+            for ($j = 0; $j < $n; $j++) {
+                if ($j !== $i) {
+                    $factor = $matrix[$j][$i];
+                    for ($k = 0; $k < 2 * $n; $k++) {
+                        $matrix[$j][$k] -= $factor * $matrix[$i][$k];
+                    }
+                }
+            }
+        }
+
+        // Extraire la matrice inverse
+        $inverse = [];
+        for ($i = 0; $i < $n; $i++) {
+            $inverse[$i] = array_slice($matrix[$i], $n);
+        }
+
+
+        $this->matrix = $inverse;
+        return $this;
     }
 
     private function outputMatrix(): string
