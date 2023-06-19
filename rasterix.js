@@ -1,10 +1,10 @@
-const url = 'http://localhost:23100/index2.php';
+const url = 'http://localhost:23100/front.php';
 const formData = new FormData();
 
 let scaleUp = document.getElementById('scale-up');
 scaleUp.addEventListener('click', function (e) {
     e.preventDefault();
-    formData.append("scale", "0.1") 
+    formData.append("scale", "1000") 
     fetch(url, { method: 'POST', body: formData })
     .then(() => {
         document.getElementById('render').contentWindow.location.reload();
@@ -14,7 +14,7 @@ scaleUp.addEventListener('click', function (e) {
 let scaleDown = document.getElementById('scale-down');
 scaleDown.addEventListener('click', function (e) {
     e.preventDefault();
-    formData.append("scale", "-0.1") 
+    formData.append("scale", "-1000") 
     fetch(url, { method: 'POST', body: formData })
     .then(() => {
         document.getElementById('render').contentWindow.location.reload();

@@ -9,8 +9,9 @@ require_once '/srv/http/vendor/autoload.php';
 
 $color = new Color(['red' => 255, 'green' => 0, 'blue' => 0]);
 
-const IMAGE_WIDTH = 890;
-const IMAGE_HEIGHT = 890;
+session_start();
+const IMAGE_WIDTH = 1600;
+const IMAGE_HEIGHT = 1300;
 
 $corner1 = new Vertex( array( 'x' => 1, 'y' => -1, 'z' => -5, 'color' => $color ) );
 $corner2 = new Vertex( array( 'x' => 1, 'y' => -1, 'z' => -3, 'color' => $color ) );
@@ -20,33 +21,54 @@ $corner5 = new Vertex( array( 'x' => -1, 'y' => -1, 'z' => -5, 'color' => $color
 $corner6 = new Vertex( array( 'x' => -1, 'y' => -1, 'z' => -3, 'color' => $color ) );
 $corner7 = new Vertex( array( 'x' => -1, 'y' => 1, 'z' => -5, 'color' => $color ) );
 $corner8 = new Vertex( array( 'x' => -1, 'y' => 1, 'z' => -3, 'color' => $color ) );
-$camera = new Vertex( array( 'x' => 0, 'y' => 0, 'z' => 0, 'color' => $color ) );
 
 $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7, $corner8];
 
-$vtx = new Vertex(['x' => 550, 'y' => -300, 'z' => 1]);
+if (!isset($_SESSION['corners'])) {
+    $_SESSION['corners'] = $corners;
+}
+
+$vtx = new Vertex(['x' => 850, 'y' => -150, 'z' => 1]);
 $vtc = new Vector(['dest' => $vtx]);
-$S = new Matrix( array( 'preset' => Matrix::SCALE, 'scale' => 1000) );
-$I = new Matrix( array( 'preset' => Matrix::IDENTITY) );
 $T = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc) );
 $RX = new Matrix( array( 'preset' => Matrix::RX, 'angle' => 1.8) );
 $RY = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 2) );
+$CTW = new Matrix( array( 'preset' => Matrix::CAMERA_TO_WORLD) );
+$WTC = new Matrix( array( 'preset' => Matrix::INVERSE, 'src' => $CTW) );
 
+$scale = $_POST['scale'] ?? null;
+$xTranslation = $_POST['x-translation'] ?? null;
+$yTranslation = $_POST['y-translation'] ?? null;
 
-$cameraToWorld = $I->mult($T)->mult($RX)->mult($RY);
-$worldToCamera = new Matrix( array( 'preset' => Matrix::INVERSE, 'src' => $cameraToWorld) );
+$M = new Matrix( array( 'preset' => Matrix::IDENTITY));
 
-foreach ($corners as &$corner) 
+if ($scale) {
+    $M = new Matrix( array( 'preset' => Matrix::SCALE, 'scale' => $scale) );
+}
+
+if ($xTranslation) {
+    $vtx = new Vertex(['x' => $xTranslation, 'y' => 0, 'z' => 1]);
+    $vtc = new Vector(['dest' => $vtx]);
+    $M = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc) );
+}
+
+if ($yTranslation) {
+    $vtx = new Vertex(['x' => 0, 'y' => $yTranslation, 'z' => 1]);
+    $vtc = new Vector(['dest' => $vtx]);
+    $M = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc) );
+}
+
+foreach ($_SESSION['corners'] as &$corner) 
 {
-    //$corner = $cameraToWorld->multiplication($corner);
-    $corner = $S->multiplication($corner);
-    //$corner = $worldToCamera->multiplication($corner);
     $x_proj = $corner->getX() / - $corner->getZ();
     $y_proj = $corner->getY() / - $corner->getZ();
     $x_proj_remap = (1 + $x_proj) / IMAGE_WIDTH;
     $y_proj_remap = (1 + $y_proj) / IMAGE_HEIGHT;
     $corner = new Vertex( array( 'x' => $x_proj_remap * IMAGE_WIDTH, 'y' => $y_proj_remap * IMAGE_HEIGHT, 'color' => $color ) );
+    $corner = $CTW->mult($M)->multiplication($corner);
 }
+
+$corners = $_SESSION['corners'];
 
 $image = imagecreatetruecolor(IMAGE_WIDTH, IMAGE_HEIGHT);
 $col_poly = imagecolorallocate($image, $color->red, $color->green, $color->blue);
