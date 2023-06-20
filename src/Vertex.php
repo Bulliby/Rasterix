@@ -61,6 +61,24 @@ class Vertex
         ];
     }
 
+    public static function projectPoint(Vertex $point): Vertex
+    {
+        $near = 0.1;
+        $bottom = -0.029936;
+        $left = -0.029936;
+        $top = 0.029936;
+        $right = 0.029936;
+
+        $x_proj = $point->getX() / - $point->getZ() * $near;
+        $y_proj = $point->getY() / - $point->getZ() * $near;
+        $x_NDC = ($x_proj + $right) / (2 * $right);
+        $y_NDC = ($y_proj + $top) / (2 * $top);
+        $x_rast = (int)($x_NDC * IMAGE_WIDTH);
+        $y_rast = (int)((1 - $y_NDC) * IMAGE_HEIGHT);
+        
+        return new Vertex( array( 'x' => $x_rast, 'y' => $y_rast, 'color' => $point->getColor() ) );
+    }
+
     /**
      * @return array<int, float>
      */

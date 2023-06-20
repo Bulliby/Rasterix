@@ -24,66 +24,60 @@ $camera = new Vertex( array( 'x' => 0, 'y' => 0, 'z' => 0, 'color' => $color ) )
 
 $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7, $corner8];
 
-$vtx = new Vertex(['x' => 550, 'y' => -300, 'z' => 1]);
+$vtx = new Vertex(['x' => 1, 'y' => 0, 'z' => 15]);
 $vtc = new Vector(['dest' => $vtx]);
-$S = new Matrix( array( 'preset' => Matrix::SCALE, 'scale' => 1000) );
-$I = new Matrix( array( 'preset' => Matrix::IDENTITY) );
 $T = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc) );
-$RX = new Matrix( array( 'preset' => Matrix::RX, 'angle' => 1.8) );
-$RY = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 2) );
+$RX = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 0.15) );
+$RZ = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 0.18) );
 
+$cameraToWorld = new Matrix( array( 'preset' => Matrix::IDENTITY ));
+$cameraToWorld = $cameraToWorld->multMatrix($T)->multMatrix($RZ)->multMatrix($RX);
 
-$cameraToWorld = $I->mult($T)->mult($RX)->mult($RY);
-$worldToCamera = new Matrix( array( 'preset' => Matrix::INVERSE, 'src' => $cameraToWorld) );
+$_SESSION['corners'] = $corners;
 
-foreach ($corners as &$corner) 
+$projectedCorners = [];
+foreach ($_SESSION['corners'] as &$corner) 
 {
-    //$corner = $cameraToWorld->multiplication($corner);
-    $corner = $S->multiplication($corner);
-    //$corner = $worldToCamera->multiplication($corner);
-    $x_proj = $corner->getX() / - $corner->getZ();
-    $y_proj = $corner->getY() / - $corner->getZ();
-    $x_proj_remap = (1 + $x_proj) / IMAGE_WIDTH;
-    $y_proj_remap = (1 + $y_proj) / IMAGE_HEIGHT;
-    $corner = new Vertex( array( 'x' => $x_proj_remap * IMAGE_WIDTH, 'y' => $y_proj_remap * IMAGE_HEIGHT, 'color' => $color ) );
+    $corner = $cameraToWorld->transformVertex($corner); 
+    $projectedCorners [] = Vertex::projectPoint($corner);
 }
 
 $image = imagecreatetruecolor(IMAGE_WIDTH, IMAGE_HEIGHT);
 $col_poly = imagecolorallocate($image, $color->red, $color->green, $color->blue);
 
 imagepolygon($image, [
-    $corners[5]->getX(), $corners[5]->getY(),
-    $corners[1]->getX(), $corners[1]->getY(),
-    $corners[3]->getX(), $corners[3]->getY(),
-    $corners[7]->getX(), $corners[7]->getY(),
+    $projectedCorners[5]->getX(), $projectedCorners[5]->getY(),
+    $projectedCorners[1]->getX(), $projectedCorners[1]->getY(),
+    $projectedCorners[3]->getX(), $projectedCorners[3]->getY(),
+    $projectedCorners[7]->getX(), $projectedCorners[7]->getY(),
 ], 4, $col_poly);
 
 imagepolygon($image, [
-    $corners[5]->getX(), $corners[5]->getY(),
-    $corners[4]->getX(), $corners[4]->getY(),
-    $corners[6]->getX(), $corners[6]->getY(),
-    $corners[7]->getX(), $corners[7]->getY(),
+    $projectedCorners[5]->getX(), $projectedCorners[5]->getY(),
+    $projectedCorners[4]->getX(), $projectedCorners[4]->getY(),
+    $projectedCorners[6]->getX(), $projectedCorners[6]->getY(),
+    $projectedCorners[7]->getX(), $projectedCorners[7]->getY(),
 ], 4, $col_poly);
 
 imagepolygon($image, [
-    $corners[5]->getX(), $corners[5]->getY(),
-    $corners[4]->getX(), $corners[4]->getY(),
-    $corners[6]->getX(), $corners[6]->getY(),
-    $corners[7]->getX(), $corners[7]->getY(),
+    $projectedCorners[5]->getX(), $projectedCorners[5]->getY(),
+    $projectedCorners[4]->getX(), $projectedCorners[4]->getY(),
+    $projectedCorners[6]->getX(), $projectedCorners[6]->getY(),
+    $projectedCorners[7]->getX(), $projectedCorners[7]->getY(),
 ], 4, $col_poly);
 
 imagepolygon($image, [
-    $corners[4]->getX(), $corners[4]->getY(),
-    $corners[0]->getX(), $corners[0]->getY(),
-    $corners[2]->getX(), $corners[2]->getY(),
-    $corners[6]->getX(), $corners[6]->getY(),
+    $projectedCorners[4]->getX(), $projectedCorners[4]->getY(),
+    $projectedCorners[0]->getX(), $projectedCorners[0]->getY(),
+    $projectedCorners[2]->getX(), $projectedCorners[2]->getY(),
+    $projectedCorners[6]->getX(), $projectedCorners[6]->getY(),
 ], 4, $col_poly);
 
 imagepolygon($image, [
-    $corners[0]->getX(), $corners[0]->getY(),
-    $corners[1]->getX(), $corners[1]->getY(),
-    $corners[3]->getX(), $corners[3]->getY(),
-    $corners[2]->getX(), $corners[2]->getY(),
+    $projectedCorners[0]->getX(), $projectedCorners[0]->getY(),
+    $projectedCorners[1]->getX(), $projectedCorners[1]->getY(),
+    $projectedCorners[3]->getX(), $projectedCorners[3]->getY(),
+    $projectedCorners[2]->getX(), $projectedCorners[2]->getY(),
 ], 4, $col_poly);
 
 
