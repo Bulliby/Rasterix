@@ -61,7 +61,11 @@ class Vertex
         ];
     }
 
-    public static function projectPoint(Vertex $point): Vertex
+    /**
+     * TODO dyna 
+     * Perspective divide
+     */
+    public static function projectPoint2(Vertex $point): Vertex
     {
         $near = 0.1;
         $bottom = -0.029936;
@@ -75,6 +79,21 @@ class Vertex
         $y_NDC = ($y_proj + $top) / (2 * $top);
         $x_rast = (int)($x_NDC * IMAGE_WIDTH);
         $y_rast = (int)((1 - $y_NDC) * IMAGE_HEIGHT);
+        
+        return new Vertex( array( 'x' => $x_rast, 'y' => $y_rast, 'color' => $point->getColor() ) );
+    }
+
+    /**
+     * Perspective divide or z divide
+     */
+    public static function projectPoint(Vertex $point): Vertex
+    {
+        $x_proj = $point->getX() / - $point->getZ();
+        $y_proj = $point->getY() / - $point->getZ();
+        $x_NDC = ($x_proj + $right) / 2;
+        $y_NDC = ($y_proj + $top) / 2;
+        $x_rast = $x_NDC * IMAGE_WIDTH;
+        $y_rast = $y_NDC * IMAGE_HEIGHT;
         
         return new Vertex( array( 'x' => $x_rast, 'y' => $y_rast, 'color' => $point->getColor() ) );
     }

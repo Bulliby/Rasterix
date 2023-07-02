@@ -10,8 +10,8 @@ require_once '/srv/http/vendor/autoload.php';
 $color = new Color(['red' => 255, 'green' => 0, 'blue' => 0]);
 
 session_start();
-const IMAGE_WIDTH = 1600;
-const IMAGE_HEIGHT = 1300;
+const IMAGE_WIDTH = 890;
+const IMAGE_HEIGHT = 890;
 
 $corner1 = new Vertex( array( 'x' => 1, 'y' => -1, 'z' => -5, 'color' => $color ) );
 $corner2 = new Vertex( array( 'x' => 1, 'y' => -1, 'z' => -3, 'color' => $color ) );

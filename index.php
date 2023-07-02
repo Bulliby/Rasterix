@@ -20,25 +20,33 @@ $corner5 = new Vertex( array( 'x' => -1, 'y' => -1, 'z' => -5, 'color' => $color
 $corner6 = new Vertex( array( 'x' => -1, 'y' => -1, 'z' => -3, 'color' => $color ) );
 $corner7 = new Vertex( array( 'x' => -1, 'y' => 1, 'z' => -5, 'color' => $color ) );
 $corner8 = new Vertex( array( 'x' => -1, 'y' => 1, 'z' => -3, 'color' => $color ) );
-$camera = new Vertex( array( 'x' => 0, 'y' => 0, 'z' => 0, 'color' => $color ) );
 
 $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7, $corner8];
 
-$vtx = new Vertex(['x' => 1, 'y' => 0, 'z' => 15]);
+$to = new Vertex( array( 'x' => 0, 'y' => 0, 'z' => 0, 'color' => $color ) );
+$from = new Vertex(['x' => 1, 'y' => 1, 'z' => 1]);
+
+
+$vtx = new Vertex(['x' => 1.5, 'y' => 1.5, 'z' => -3]);
 $vtc = new Vector(['dest' => $vtx]);
 $T = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc) );
-$RX = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 0.15) );
+$RX = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 0.25) );
 $RZ = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 0.18) );
+$M = new Matrix(['preset' => Matrix::IDENTITY]);
 
-$cameraToWorld = new Matrix( array( 'preset' => Matrix::IDENTITY ));
-$cameraToWorld = $cameraToWorld->multMatrix($T)->multMatrix($RZ)->multMatrix($RX);
+$cameraToWorld = new Matrix( array( 'preset' => Matrix::CAMERATOWORLD , 'from' => $from, 'to' => $to));
+/* var_dump($cameraToWorld); */
+/* die(); */
+$worldToCamera = new Matrix( array( 'preset' => Matrix::INVERSE , 'matrix' => $cameraToWorld));
 
 $_SESSION['corners'] = $corners;
 
 $projectedCorners = [];
 foreach ($_SESSION['corners'] as &$corner) 
 {
-    $corner = $cameraToWorld->transformVertex($corner); 
+    $corner = $cameraToWorld->transformVertex($corner);
+    $corner = $M->multMatrix($T)->multMatrix($RX)->transformVertex($corner);
+    $corner = $worldToCamera->transformVertex($corner); 
     $projectedCorners [] = Vertex::projectPoint($corner);
 }
 

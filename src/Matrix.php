@@ -11,6 +11,8 @@ class Matrix
     public const RZ = "RZ";
     public const TRANSLATION = "TRANSLATION";
     public const PROJECTION = "PROJECTION";
+    public const CAMERATOWORLD = "CAMERATOWORLD";
+    public const INVERSE = "INVERSE";
 
     public const SIZE = 4;
 
@@ -93,6 +95,21 @@ class Matrix
                 $this->near = $args['near'];
                 $this->far = $args['far'];
                 $this->createProjectionMatrix();
+                break;
+            case self::CAMERATOWORLD:
+                if (false === array_key_exists('to', $args)
+                    && array_key_exists('from', $args)) {
+                    throw new InvalidArgumentsException();
+                }
+                $this->from = $args['from'];
+                $this->to = $args['to'];
+                $this->createCameraToWorlMatrix();
+                break;
+            case self::INVERSE:
+                if (false === array_key_exists('matrix', $args)) {
+                    throw new InvalidArgumentsException();
+                }
+                $this->matInverse($args['matrix']);
                 break;
             default:
             throw new InvalidArgumentsException();
@@ -191,6 +208,29 @@ class Matrix
             [0, 0, -1 * (-$this->near - $this->far) / ($this->near - $this->far), -1],
             [0, 0, (2 * $this->near * $this->far) / ($this->near - $this->far), 0],
         ];
+    }
+
+    private function createCameraToWorlMatrix(): Matrix
+    {
+        $tmp = new Vertex(['x' => 0, 'y' => 1, 'z' => 0]);
+        $VectorTmp = new Vector(['dest' => $tmp]);
+
+        $VectorFrom = new Vector(['dest' => $this->from]);
+        $VectorTo = new Vector(['dest' => $this->to]);
+
+        $VectorForward = $VectorFrom->sub($VectorTo);
+        $VectorForward = $VectorForward->normalize();
+        $VectorRight = $VectorTmp->crossProduct($VectorForward);
+        $VectorUp = $VectorForward->crossProduct($VectorRight);
+
+        $this->matrix = [
+            [$VectorRight->getX(), $VectorRight->getY(), $VectorRight->getZ(), 0],
+            [$VectorUp->getX(), $VectorUp->getY(), $VectorUp->getZ(), 0],
+            [$VectorForward->getX(), $VectorForward->getY(), $VectorForward->getZ(), 0],
+            [$this->from->getX(), $this->from->getY(), $this->from->getZ(), 1],
+        ];
+
+        return $this;
     }
 
     public function matInverse(Matrix $matrix): Matrix

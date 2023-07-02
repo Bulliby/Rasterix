@@ -1,4 +1,4 @@
-const url = 'http://localhost:23100/front.php';
+const url = 'http://rasterix.test/front.php';
 const formData = new FormData();
 
 // TRANSLATION
