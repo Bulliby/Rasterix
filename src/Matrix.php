@@ -27,6 +27,8 @@ class Matrix
     private float $far;
 
     private float $fov;
+    private Vertex $from;
+    private Vertex $to;
 
     /**
      * @var array<array<int>> $matrix
@@ -221,6 +223,7 @@ class Matrix
         $VectorForward = $VectorFrom->sub($VectorTo);
         $VectorForward = $VectorForward->normalize();
         $VectorRight = $VectorTmp->crossProduct($VectorForward);
+        $VectorRight = $VectorRight->normalize();
         $VectorUp = $VectorForward->crossProduct($VectorRight);
 
         $this->matrix = [

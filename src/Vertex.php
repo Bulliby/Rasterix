@@ -90,8 +90,8 @@ class Vertex
     {
         $x_proj = $point->getX() / - $point->getZ();
         $y_proj = $point->getY() / - $point->getZ();
-        $x_NDC = ($x_proj + $right) / 2;
-        $y_NDC = ($y_proj + $top) / 2;
+        $x_NDC = $x_proj / 2;
+        $y_NDC = $y_proj / 2;
         $x_rast = $x_NDC * IMAGE_WIDTH;
         $y_rast = $y_NDC * IMAGE_HEIGHT;
         

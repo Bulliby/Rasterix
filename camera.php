@@ -2,17 +2,14 @@
 
 use Waxer\Rasterix\Color;
 use Waxer\Rasterix\Matrix;
-use Waxer\Rasterix\Vector;
 use Waxer\Rasterix\Vertex;
 
 require_once '/srv/http/vendor/autoload.php';
 
 $color = new Color(['red' => 255, 'green' => 0, 'blue' => 0]);
 
-session_start();
-
-const IMAGE_WIDTH = 890;
-const IMAGE_HEIGHT = 890;
+const IMAGE_WIDTH = 1600;
+const IMAGE_HEIGHT = 1300;
 
 $corner1 = new Vertex( array( 'x' => 1, 'y' => -1, 'z' => -5, 'color' => $color ) );
 $corner2 = new Vertex( array( 'x' => 1, 'y' => -1, 'z' => -3, 'color' => $color ) );
@@ -25,33 +22,36 @@ $corner8 = new Vertex( array( 'x' => -1, 'y' => 1, 'z' => -3, 'color' => $color 
 
 $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7, $corner8];
 
-$M = new Matrix( array( 'preset' => Matrix::IDENTITY ));
+session_start();
 
-$_SESSION['x-translation'] += $_POST['x-translation'] ?? 0;
-$_SESSION['y-translation'] += $_POST['y-translation'] ?? 0;
-$_SESSION['z-translation'] += $_POST['z-translation'] ?? 0;
-$_SESSION['z-rotation'] += $_POST['z-rotation'] ?? 0;
-$_SESSION['y-rotation'] += $_POST['y-rotation'] ?? 0;
-$_SESSION['x-rotation'] += $_POST['x-rotation'] ?? 0;
+if (empty($_SESSION)) {
+    $_SESSION['x-translation'] = 11;
+    $_SESSION['y-translation'] = 9;
+    $_SESSION['z-translation'] = -10;
+}
 
-$vtx = new Vertex(['x' => $_SESSION['x-translation'], 'y' => $_SESSION['y-translation'], 'z' => $_SESSION['z-translation']]);
-$vtc = new Vector(['dest' => $vtx]);
-$T = new Matrix(['preset' => Matrix::TRANSLATION, 'vtc' => $vtc]);
-$RX = new Matrix(['preset' => Matrix::RX, 'angle' => $_SESSION['x-rotation']]);
-$RY = new Matrix(['preset' => Matrix::RY, 'angle' => $_SESSION['y-rotation']]);
-$RZ = new Matrix(['preset' => Matrix::RZ, 'angle' => $_SESSION['z-rotation']]);
+if ($_POST['x-translation']) {
+    $_SESSION['x-translation'] += (int) $_POST['x-translation'];
+}
+if ($_POST['y-translation']) {
+    $_SESSION['y-translation'] += (int) $_POST['y-translation'];
+}
+if ($_POST['z-translation']) {
+    $_SESSION['z-translation'] += (int) $_POST['z-translation'];
+}
 
-$to = new Vertex( array( 'x' => $corners[0]->getX(), 'y' => $corners[0]->getY(), 'z' => $corners[0]->getZ(), 'color' => $color ) );
-$from = new Vertex(['x' => 0, 'y' => 0, 'z' => 10]);
-$cameraToWorld = new Matrix( array( 'preset' => Matrix::CAMERATOWORLD , 'from' => $from, 'to' => $to));
+$to = new Vertex( array( 'x' => $corner1->getX(), 'y' => $corner1->getY(), 'z' => $corner1->getZ(), 'color' => $color ) );
+$from = new Vertex(['x' => $_SESSION['x-translation'], 'y' => $_SESSION['y-translation'], 'z' => $_SESSION['z-translation']]);
+$viewMatrix = new Matrix( array( 'preset' => Matrix::CAMERATOWORLD , 'from' => $from, 'to' => $to));
+
+/* $to = new Vertex( array( 'x' => 0, 'y' => 0, 'z' => 0, 'color' => $color ) ); */
+/* $from = new Vertex(['x' => 1, 'y' => 1, 'z' => 1]); */
+/* $viewMatrix = new Matrix( array( 'preset' => Matrix::CAMERATOWORLD , 'from' => $from, 'to' => $to)); */
+
 $projectedCorners = [];
-
 foreach ($corners as &$corner) 
 {
-    $corner = $cameraToWorld->transformVertex($corner);
-    $corner = $M->multMatrix($T)->multMatrix($RX)->multMatrix($RY)->multMatrix($RZ)->transformVertex($corner);
-    $worldToCamera = new Matrix( array( 'preset' => Matrix::INVERSE , 'matrix' => $cameraToWorld));
-    $corner = $worldToCamera->transformVertex($corner); 
+    $corner = $viewMatrix->transformVertex($corner);
     $projectedCorners [] = Vertex::projectPoint($corner);
 }
 

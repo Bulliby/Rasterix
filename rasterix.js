@@ -1,4 +1,4 @@
-const url = 'http://rasterix.test/front.php';
+const url = 'http://rasterix.test/camera.php';
 const formData = new FormData();
 
 // TRANSLATION
@@ -25,6 +25,7 @@ xDown.addEventListener('click', function (e) {
         formData.delete("x-translation") 
         document.getElementById('render').contentWindow.location.reload();
     });
+
 });
 
 let yUp = document.getElementById('y-up');
