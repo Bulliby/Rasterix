@@ -99,6 +99,26 @@ class Vertex
     }
 
     /**
+     * Perspective divide or z divide
+     */
+    public static function projectPoint3(Vertex $point): Vertex
+    {
+        $x_proj = $point->getX() / - $point->getZ();
+        $y_proj = $point->getY() / - $point->getZ();
+
+        /* if (abs($x_proj) > IMAGE_WIDTH || abs($y_proj) > IMAGE_HEIGHT) { */
+        /*     return false; */
+        /* } */
+
+        $x_NDC = ($x_proj + 2 / 2) / 2;
+        $y_NDC = ($y_proj + 2 / 2) / 2;
+        $x_rast = floor($x_NDC * IMAGE_WIDTH);
+        $y_rast = floor((1 - $y_NDC) * IMAGE_HEIGHT);
+        
+        return new Vertex( array( 'x' => $x_rast, 'y' => $y_rast, 'color' => $point->getColor() ) );
+    }
+
+    /**
      * @return array<int, float>
      */
     public function toArray(): array
