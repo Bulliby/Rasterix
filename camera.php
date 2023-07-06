@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Here we move the camera around the object.
+ */
+
 use Waxer\Rasterix\Color;
 use Waxer\Rasterix\Matrix;
 use Waxer\Rasterix\Vertex;
@@ -26,7 +30,7 @@ $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7
 session_start();
 
 if (empty($_SESSION)) {
-    $_SESSION['from'] = new Vertex(['x' => 0, 'y' => 0, 'z' => -4]);
+    $_SESSION['from'] = new Vertex(['x' => 0, 'y' => 0, 'z' => -20]);
 }
 
 if (isset($_POST['x-translation'])) {
@@ -62,12 +66,10 @@ if (isset($_POST['z-rotation'])) {
 }
 
 
-$to = new Vertex( array( 'x' => 1, 'y' => 1, 'z' => -5, 'color' => $color ) );
+$to = new Vertex( array( 'x' => 1, 'y' => 1, 'z' => -1, 'color' => $color ) );
 $viewMatrix = new Matrix( array( 'preset' => Matrix::CAMERATOWORLD , 'from' => $_SESSION['from'], 'to' => $to));
 
 $projectedCorners = [];
-/* $camera = $viewMatrix->transformVertex($_SESSION['from']); */
-/* $camera = Vertex::projectPoint3($camera); */
 foreach ($corners as &$corner) 
 {
     $corner = $viewMatrix->transformVertex($corner);

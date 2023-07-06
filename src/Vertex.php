@@ -62,28 +62,6 @@ class Vertex
     }
 
     /**
-     * TODO dyna 
-     * Perspective divide
-     */
-    public static function projectPoint2(Vertex $point): Vertex
-    {
-        $near = 0.1;
-        $bottom = -0.029936;
-        $left = -0.029936;
-        $top = 0.029936;
-        $right = 0.029936;
-
-        $x_proj = $point->getX() / - $point->getZ() * $near;
-        $y_proj = $point->getY() / - $point->getZ() * $near;
-        $x_NDC = ($x_proj + $right) / (2 * $right);
-        $y_NDC = ($y_proj + $top) / (2 * $top);
-        $x_rast = (int)($x_NDC * IMAGE_WIDTH);
-        $y_rast = (int)((1 - $y_NDC) * IMAGE_HEIGHT);
-        
-        return new Vertex( array( 'x' => $x_rast, 'y' => $y_rast, 'color' => $point->getColor() ) );
-    }
-
-    /**
      * Perspective divide or z divide
      */
     public static function projectPoint(Vertex $point): Vertex
@@ -99,16 +77,16 @@ class Vertex
     }
 
     /**
-     * Perspective divide or z divide
+     * Perspective divide or z divide.
+     * Here we consider that canvas is at 1 unit from the "eye"
+     * We need other type of computation if we want something else
+     * Projection matr.x.
+     * We assume that the canva has a size of 2.
      */
     public static function projectPoint3(Vertex $point): Vertex
     {
         $x_proj = $point->getX() / - $point->getZ();
         $y_proj = $point->getY() / - $point->getZ();
-
-        /* if (abs($x_proj) > IMAGE_WIDTH || abs($y_proj) > IMAGE_HEIGHT) { */
-        /*     return false; */
-        /* } */
 
         $x_NDC = ($x_proj + 2 / 2) / 2;
         $y_NDC = ($y_proj + 2 / 2) / 2;
