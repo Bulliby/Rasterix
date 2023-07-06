@@ -1,32 +1,17 @@
-const url = 'http://localhost:23100/index2.php';
+const url = 'http://rasterix.test/camera.php';
 const formData = new FormData();
 
-let scaleUp = document.getElementById('scale-up');
-scaleUp.addEventListener('click', function (e) {
-    e.preventDefault();
-    formData.append("scale", "0.1") 
-    fetch(url, { method: 'POST', body: formData })
-    .then(() => {
-        document.getElementById('render').contentWindow.location.reload();
-    });
-});
+// TRANSLATION
 
-let scaleDown = document.getElementById('scale-down');
-scaleDown.addEventListener('click', function (e) {
-    e.preventDefault();
-    formData.append("scale", "-0.1") 
-    fetch(url, { method: 'POST', body: formData })
-    .then(() => {
-        document.getElementById('render').contentWindow.location.reload();
-    });
-});
+const STEP = 1;
 
 let xUp = document.getElementById('x-up');
 xUp.addEventListener('click', function (e) {
     e.preventDefault();
-    formData.append("x-translation", "10") 
+    formData.append("x-translation", STEP) 
     fetch(url, { method: 'POST', body: formData })
     .then(() => {
+        formData.delete("x-translation") 
         document.getElementById('render').contentWindow.location.reload();
     });
 });
@@ -34,19 +19,22 @@ xUp.addEventListener('click', function (e) {
 let xDown = document.getElementById('x-down');
 xDown.addEventListener('click', function (e) {
     e.preventDefault();
-    formData.append("x-translation", "-10") 
+    formData.append("x-translation", - STEP) 
     fetch(url, { method: 'POST', body: formData })
     .then(() => {
+        formData.delete("x-translation") 
         document.getElementById('render').contentWindow.location.reload();
     });
+
 });
 
 let yUp = document.getElementById('y-up');
 yUp.addEventListener('click', function (e) {
     e.preventDefault();
-    formData.append("y-translation", "10") 
+    formData.append("y-translation", STEP) 
     fetch(url, { method: 'POST', body: formData })
     .then(() => {
+        formData.delete("y-translation") 
         document.getElementById('render').contentWindow.location.reload();
     });
 });
@@ -54,10 +42,102 @@ yUp.addEventListener('click', function (e) {
 let yDown = document.getElementById('y-down');
 yDown.addEventListener('click', function (e) {
     e.preventDefault();
-    formData.append("y-translation", "-10") 
+    formData.append("y-translation", - STEP) 
     fetch(url, { method: 'POST', body: formData })
     .then(() => {
+        formData.delete("y-translation") 
         document.getElementById('render').contentWindow.location.reload();
     });
 });
 
+let zUp = document.getElementById('z-up');
+zUp.addEventListener('click', function (e) {
+    e.preventDefault();
+    formData.append("z-translation", STEP) 
+    fetch(url, { method: 'POST', body: formData })
+    .then(() => {
+        formData.delete("z-translation") 
+        document.getElementById('render').contentWindow.location.reload();
+    });
+});
+
+let zDown = document.getElementById('z-down');
+zDown.addEventListener('click', function (e) {
+    e.preventDefault();
+    formData.append("z-translation", - STEP) 
+    fetch(url, { method: 'POST', body: formData })
+    .then(() => {
+        formData.delete("z-translation") 
+        document.getElementById('render').contentWindow.location.reload();
+    });
+});
+
+
+// Rotation
+const RSTEP = 0.1;
+
+let zRUp = document.getElementById('z-r-up');
+zRUp.addEventListener('click', function (e) {
+    e.preventDefault();
+    formData.append("z-rotation", RSTEP) 
+    fetch(url, { method: 'POST', body: formData })
+    .then(() => {
+        formData.delete("z-rotation") 
+        document.getElementById('render').contentWindow.location.reload();
+    });
+});
+
+let zRDown = document.getElementById('z-r-down');
+zRDown.addEventListener('click', function (e) {
+    e.preventDefault();
+    formData.append("z-rotation", - RSTEP) 
+    fetch(url, { method: 'POST', body: formData })
+    .then(() => {
+        formData.delete("z-rotation") 
+        document.getElementById('render').contentWindow.location.reload();
+    });
+});
+
+let yRUp = document.getElementById('y-r-up');
+yRUp.addEventListener('click', function (e) {
+    e.preventDefault();
+    formData.append("y-rotation", RSTEP) 
+    fetch(url, { method: 'POST', body: formData })
+    .then(() => {
+        formData.delete("y-rotation") 
+        document.getElementById('render').contentWindow.location.reload();
+    });
+});
+
+let yRDown = document.getElementById('y-r-down');
+yRDown.addEventListener('click', function (e) {
+    e.preventDefault();
+    formData.append("y-rotation", - RSTEP) 
+    fetch(url, { method: 'POST', body: formData })
+    .then(() => {
+        formData.delete("y-rotation") 
+        document.getElementById('render').contentWindow.location.reload();
+    });
+});
+
+let xRUp = document.getElementById('x-r-up');
+xRUp.addEventListener('click', function (e) {
+    e.preventDefault();
+    formData.append("x-rotation", RSTEP) 
+    fetch(url, { method: 'POST', body: formData })
+    .then(() => {
+        formData.delete("x-rotation") 
+        document.getElementById('render').contentWindow.location.reload();
+    });
+});
+
+let xRDown = document.getElementById('x-r-down');
+xRDown.addEventListener('click', function (e) {
+    e.preventDefault();
+    formData.append("x-rotation", - RSTEP) 
+    fetch(url, { method: 'POST', body: formData })
+    .then(() => {
+        formData.delete("x-rotation") 
+        document.getElementById('render').contentWindow.location.reload();
+    });
+});

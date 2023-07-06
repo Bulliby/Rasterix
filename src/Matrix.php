@@ -11,9 +11,8 @@ class Matrix
     public const RZ = "RZ";
     public const TRANSLATION = "TRANSLATION";
     public const PROJECTION = "PROJECTION";
-    public const CAMERA_TO_WORLD = "CAMERA_TO_WORLD";
+    public const CAMERATOWORLD = "CAMERATOWORLD";
     public const INVERSE = "INVERSE";
-    public const MATRIX = "MATRIX";
 
     public const SIZE = 4;
 
@@ -28,6 +27,8 @@ class Matrix
     private float $far;
 
     private float $fov;
+    private Vertex $from;
+    private Vertex $to;
 
     /**
      * @var array<array<int>> $matrix
@@ -83,15 +84,6 @@ class Matrix
                 $this->vtc = $args['vtc'];
                 $this->createTranslationMatrix();
                 break;
-            case self::CAMERA_TO_WORLD:
-                $this->cameraToWorld();
-                break;
-            case self::INVERSE:
-                if (false === array_key_exists('src', $args)) {
-                    throw new InvalidArgumentsException();
-                }
-                $this->matInverse($args['src']);
-                break;
             case self::PROJECTION:
                 if (false === array_key_exists('fov', $args)
                     && array_key_exists('ratio', $args)
@@ -105,6 +97,21 @@ class Matrix
                 $this->near = $args['near'];
                 $this->far = $args['far'];
                 $this->createProjectionMatrix();
+                break;
+            case self::CAMERATOWORLD:
+                if (false === array_key_exists('to', $args)
+                    && array_key_exists('from', $args)) {
+                    throw new InvalidArgumentsException();
+                }
+                $this->from = $args['from'];
+                $this->to = $args['to'];
+                $this->createCameraToWorlMatrix();
+                break;
+            case self::INVERSE:
+                if (false === array_key_exists('matrix', $args)) {
+                    throw new InvalidArgumentsException();
+                }
+                $this->matInverse($args['matrix']);
                 break;
             default:
             throw new InvalidArgumentsException();
@@ -205,18 +212,28 @@ class Matrix
         ];
     }
 
-    /**
-     * Maya One
-     * @return array<array<int>>
-     */
-    public function cameraToWorld(): array
+    private function createCameraToWorlMatrix(): Matrix
     {
-        return $this->matrix = [
-            [0.871214, 0, -0.490904, 0,],
-            [-0.192902, 0.919559, -0.342346, 0,],
-            [0.451415, 0.392953, 0.801132, 0,],
-            [14.777467, 29.361945, 27.993464, 1,],
+        $tmp = new Vertex(['x' => 0, 'y' => 1, 'z' => 0]);
+        $VectorTmp = new Vector(['dest' => $tmp]);
+
+        $VectorFrom = new Vector(['dest' => $this->from]);
+        $VectorTo = new Vector(['dest' => $this->to]);
+
+        $VectorForward = $VectorFrom->sub($VectorTo);
+        $VectorForward = $VectorForward->normalize();
+        $VectorRight = $VectorTmp->crossProduct($VectorForward);
+        $VectorRight = $VectorRight->normalize();
+        $VectorUp = $VectorForward->crossProduct($VectorRight);
+
+        $this->matrix = [
+            [$VectorRight->getX(), $VectorRight->getY(), $VectorRight->getZ(), 0],
+            [$VectorUp->getX(), $VectorUp->getY(), $VectorUp->getZ(), 0],
+            [$VectorForward->getX(), $VectorForward->getY(), $VectorForward->getZ(), 0],
+            [$this->from->getX(), $this->from->getY(), $this->from->getZ(), 1],
         ];
+
+        return $this;
     }
 
     public function matInverse(Matrix $matrix): Matrix
@@ -291,7 +308,7 @@ class Matrix
         return sprintf("%sx | %s\ny | %s\nz | %s\nw | %s\n", $output, $lineX, $lineY, $lineZ, $lineO);
     }
 
-    public function multiplication(Vertex $vertex): Vertex
+    public function transformVertex(Vertex $vertex): Vertex
     {
         $vertex = $vertex->toArray();
 
@@ -301,6 +318,7 @@ class Matrix
         {
             for($j = 0; $j != self::SIZE; $j++)
             {
+                $ret[$i] ?? array_push($ret, 0);
                 $ret[$i] += $vertex[$j] * $this->matrix[$j][$i];
             }
         }
@@ -308,7 +326,7 @@ class Matrix
         return Vertex::toVertex($ret);
     }
 
-    public function mult(Matrix $rhs): self
+    public function multMatrix(Matrix $matrix): self
     {
         $ret = new Matrix(['preset' => self::IDENTITY]);
 
@@ -316,10 +334,10 @@ class Matrix
         {
             for($j = 0; $j != self::SIZE; $j++)
             {
-                $ret->matrix[$i][$j] =  $rhs->matrix[$i][0] * $this->matrix[0][$j] + 
-                    $rhs->matrix[$i][1] * $this->matrix[1][$j] +
-                    $rhs->matrix[$i][2] * $this->matrix[2][$j] +
-                    $rhs->matrix[$i][3] * $this->matrix[3][$j];
+                $ret->matrix[$i][$j] =  $matrix->matrix[$i][0] * $this->matrix[0][$j] + 
+                    $matrix->matrix[$i][1] * $this->matrix[1][$j] +
+                    $matrix->matrix[$i][2] * $this->matrix[2][$j] +
+                    $matrix->matrix[$i][3] * $this->matrix[3][$j];
             }
         }
 

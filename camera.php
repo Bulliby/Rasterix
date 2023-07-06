@@ -1,9 +1,13 @@
 <?php
 
+/**
+ * Here we move the camera around the object.
+ */
+
 use Waxer\Rasterix\Color;
 use Waxer\Rasterix\Matrix;
-use Waxer\Rasterix\Vector;
 use Waxer\Rasterix\Vertex;
+use Waxer\Rasterix\Vector;
 
 require_once '/srv/http/vendor/autoload.php';
 
@@ -23,21 +27,49 @@ $corner8 = new Vertex( array( 'x' => -1, 'y' => 1, 'z' => -3, 'color' => $color 
 
 $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7, $corner8];
 
+session_start();
+
+if (empty($_SESSION)) {
+    $_SESSION['from'] = new Vertex(['x' => 0, 'y' => 0, 'z' => -20]);
+}
+
+if (isset($_POST['x-translation'])) {
+    $vtx = new Vertex(['x' => $_POST['x-translation'], 'y' => 0, 'z' => 0]);
+    $vtc = new Vector(['dest' => $vtx]);
+    $M = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc) );
+    $_SESSION['from'] = $M->transformVertex($_SESSION['from']);
+}
+if (isset($_POST['y-translation'])) {
+    $vtx = new Vertex(['x' => 0, 'y' => $_POST['y-translation'], 'z' => 0]);
+    $vtc = new Vector(['dest' => $vtx]);
+    $M = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc) );
+    $_SESSION['from'] = $M->transformVertex($_SESSION['from']);
+}
+if (isset($_POST['z-translation'])) {
+    $vtx = new Vertex(['x' => 0, 'y' => 0, 'z' => $_POST['z-translation']]);
+    $vtc = new Vector(['dest' => $vtx]);
+    $M = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc) );
+    $_SESSION['from'] = $M->transformVertex($_SESSION['from']);
+}
+
+if (isset($_POST['x-rotation'])) {
+    $M = new Matrix( array( 'preset' => Matrix::RX, 'angle' => (float) $_POST['x-rotation']) );
+    $_SESSION['from'] = $M->transformVertex($_SESSION['from']);
+}
+if (isset($_POST['y-rotation'])) {
+    $M = new Matrix( array( 'preset' => Matrix::RY, 'angle' => (float) $_POST['y-rotation']) );
+    $_SESSION['from'] = $M->transformVertex($_SESSION['from']);
+}
+if (isset($_POST['z-rotation'])) {
+    $M = new Matrix( array( 'preset' => Matrix::RZ, 'angle' => (float) $_POST['z-rotation']) );
+    $_SESSION['from'] = $M->transformVertex($_SESSION['from']);
+}
+
+
+$to = new Vertex( array( 'x' => 1, 'y' => 1, 'z' => -1, 'color' => $color ) );
+$viewMatrix = new Matrix( array( 'preset' => Matrix::CAMERATOWORLD , 'from' => $_SESSION['from'], 'to' => $to));
+
 $projectedCorners = [];
-
-
-$to = new Vertex( array( 'x' => $corners[0]->getX(), 'y' => $corners[0]->getY(), 'z' => $corners[0]->getZ(), 'color' => $color ) );
-$from = new Vertex(['x' => 1, 'y' => 1, 'z' => 1]);
-
-$M = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 0.1) );
-$from = $M->transformVertex($from);
-$M = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 0.1 ) );
-$from = $M->transformVertex($from);
-$M = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 0.1) );
-$from = $M->transformVertex($from);
-
-$viewMatrix = new Matrix( array( 'preset' => Matrix::CAMERATOWORLD , 'from' => $from, 'to' => $to));
-
 foreach ($corners as &$corner) 
 {
     $corner = $viewMatrix->transformVertex($corner);
@@ -46,6 +78,10 @@ foreach ($corners as &$corner)
 
 $image = imagecreatetruecolor(IMAGE_WIDTH, IMAGE_HEIGHT);
 $col_poly = imagecolorallocate($image, $color->red, $color->green, $color->blue);
+$downColor = new Color(['red' => 102, 'green' => 252, 'blue' => 102]);
+$downColor = imagecolorallocate($image, $downColor->red, $downColor->green, $downColor->blue);
+$topColor = new Color(['red' => 252, 'green' => 186, 'blue' => 3]);
+$topColor = imagecolorallocate($image, $topColor->red, $topColor->green, $topColor->blue);
 
 imagepolygon($image, [
     $projectedCorners[5]->getX(), $projectedCorners[5]->getY(),
@@ -61,12 +97,6 @@ imagepolygon($image, [
     $projectedCorners[7]->getX(), $projectedCorners[7]->getY(),
 ], 4, $col_poly);
 
-imagepolygon($image, [
-    $projectedCorners[5]->getX(), $projectedCorners[5]->getY(),
-    $projectedCorners[4]->getX(), $projectedCorners[4]->getY(),
-    $projectedCorners[6]->getX(), $projectedCorners[6]->getY(),
-    $projectedCorners[7]->getX(), $projectedCorners[7]->getY(),
-], 4, $col_poly);
 
 imagepolygon($image, [
     $projectedCorners[4]->getX(), $projectedCorners[4]->getY(),
@@ -74,14 +104,20 @@ imagepolygon($image, [
     $projectedCorners[2]->getX(), $projectedCorners[2]->getY(),
     $projectedCorners[6]->getX(), $projectedCorners[6]->getY(),
 ], 4, $col_poly);
+
+imagepolygon($image, [
+    $projectedCorners[5]->getX(), $projectedCorners[5]->getY(),
+    $projectedCorners[4]->getX(), $projectedCorners[4]->getY(),
+    $projectedCorners[6]->getX(), $projectedCorners[6]->getY(),
+    $projectedCorners[7]->getX(), $projectedCorners[7]->getY(),
+], 4, $topColor);
 
 imagepolygon($image, [
     $projectedCorners[0]->getX(), $projectedCorners[0]->getY(),
     $projectedCorners[1]->getX(), $projectedCorners[1]->getY(),
     $projectedCorners[3]->getX(), $projectedCorners[3]->getY(),
     $projectedCorners[2]->getX(), $projectedCorners[2]->getY(),
-], 4, $col_poly);
-
+], 4, $downColor);
 
 header('Content-type: image/png');
 
