@@ -1,7 +1,9 @@
 <?php
 
 /**
- * Here we move the camera around the object.
+ * Define a Camera To World matrix who encode the poistion of the camera with respect to the World coordinate system
+ * Apply on the vertex's scene the World to Camera to matrix to obtain vertex on the camera coordinate system
+ * Apply the projection Matrix
  */
 
 use Waxer\Rasterix\Color;
@@ -27,47 +29,11 @@ $corner8 = new Vertex( array( 'x' => -1, 'y' => 1, 'z' => -3, 'color' => $color 
 
 $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7, $corner8];
 
-session_start();
-
-if (empty($_SESSION)) {
-    $_SESSION['from'] = new Vertex(['x' => 100, 'y' => 120, 'z' => -100]);
-}
-
-if (isset($_POST['x-translation'])) {
-    $vtx = new Vertex(['x' => $_POST['x-translation'], 'y' => 0, 'z' => 0]);
-    $vtc = new Vector(['dest' => $vtx]);
-    $M = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc) );
-    $_SESSION['from'] = $M->transformVertex($_SESSION['from']);
-}
-if (isset($_POST['y-translation'])) {
-    $vtx = new Vertex(['x' => 0, 'y' => $_POST['y-translation'], 'z' => 0]);
-    $vtc = new Vector(['dest' => $vtx]);
-    $M = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc) );
-    $_SESSION['from'] = $M->transformVertex($_SESSION['from']);
-}
-if (isset($_POST['z-translation'])) {
-    $vtx = new Vertex(['x' => 0, 'y' => 0, 'z' => $_POST['z-translation']]);
-    $vtc = new Vector(['dest' => $vtx]);
-    $M = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc) );
-    $_SESSION['from'] = $M->transformVertex($_SESSION['from']);
-}
-
-if (isset($_POST['x-rotation'])) {
-    $M = new Matrix( array( 'preset' => Matrix::RX, 'angle' => (float) $_POST['x-rotation']) );
-    $_SESSION['from'] = $M->transformVertex($_SESSION['from']);
-}
-if (isset($_POST['y-rotation'])) {
-    $M = new Matrix( array( 'preset' => Matrix::RY, 'angle' => (float) $_POST['y-rotation']) );
-    $_SESSION['from'] = $M->transformVertex($_SESSION['from']);
-}
-if (isset($_POST['z-rotation'])) {
-    $M = new Matrix( array( 'preset' => Matrix::RZ, 'angle' => (float) $_POST['z-rotation']) );
-    $_SESSION['from'] = $M->transformVertex($_SESSION['from']);
-}
-
-
+$from = new Vertex(['x' => 100, 'y' => 120, 'z' => -100]);
+$RY = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 1) );
+$from = $RY->transformVertex($from);
 $to = new Vertex( array( 'x' => $corner1->getX(), 'y' =>$corner1->getY(), 'z' => $corner1->getZ(), 'color' => $color ) );
-$cameraToWorld = new Matrix( array( 'preset' => Matrix::CAMERATOWORLD , 'from' => $_SESSION['from'], 'to' => $to));
+$cameraToWorld = new Matrix( array( 'preset' => Matrix::CAMERATOWORLD , 'from' => $from, 'to' => $to));
 $worldToCamera = new Matrix(['preset' => Matrix::INVERSE, 'matrix' => $cameraToWorld]);
 $projection = new Matrix(['preset' => Matrix::PROJECTION, 'fov' => 60, 'ratio' => 1, 'near' => 1.0, 'far' => -50.0]);
 
