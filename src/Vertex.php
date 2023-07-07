@@ -80,16 +80,19 @@ class Vertex
      * Perspective divide or z divide.
      * Here we consider that canvas is at 1 unit from the "eye"
      * We need other type of computation if we want something else
-     * Projection matr.x.
+     * Projection matrix.
      * We assume that the canva has a size of 2.
      */
     public static function projectPoint3(Vertex $point): Vertex
     {
-        $x_proj = $point->getX() / - $point->getZ();
+        $x_proj = $point->getX() /  - $point->getZ();
         $y_proj = $point->getY() / - $point->getZ();
+        /* $x_proj = $point->getX() /  - ($point->getZ() ?? - 1); */
+        /* $y_proj = $point->getY() / - ($point->getZ() ?? - 1); */
 
-        $x_NDC = ($x_proj + 2 / 2) / 2;
-        $y_NDC = ($y_proj + 2 / 2) / 2;
+
+        $x_NDC = ($x_proj + IMAGE_WIDTH) / IMAGE_WIDTH;
+        $y_NDC = ($y_proj + IMAGE_HEIGHT) / IMAGE_HEIGHT;
         $x_rast = floor($x_NDC * IMAGE_WIDTH);
         $y_rast = floor((1 - $y_NDC) * IMAGE_HEIGHT);
         

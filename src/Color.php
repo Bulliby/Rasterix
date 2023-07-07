@@ -75,4 +75,9 @@ class Color
             echo sprintf("Color( red: %3d, green: %3d, blue: %3d ) destructed.", $this->red, $this->green, $this->blue).PHP_EOL;
         }
     }
+
+    public function allocateGDColor($image)
+    {
+        return imagecolorallocate($image, $this->red, $this->green, $this->blue);
+    }
 }

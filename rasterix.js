@@ -1,4 +1,4 @@
-const url = 'http://rasterix.test/camera.php';
+const url = 'http://rasterix.test/line.php';
 const formData = new FormData();
 
 // TRANSLATION
