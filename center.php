@@ -1,15 +1,5 @@
 <?php
 
-/**
- * Make move a model on his axis center
- * Define a coordinate system in the centre of model
- * Apply world to center Matrix
- * Apply rotation and other transformation
- * Apply the Center to World matrix
- * Apply the world to camera matrix
- * Project
- */
-
 use Waxer\Rasterix\Color;
 use Waxer\Rasterix\Matrix;
 use Waxer\Rasterix\Vertex;
@@ -31,8 +21,8 @@ $corner5 = new Vertex( array( 'x' => -1, 'y' => -1, 'z' => -5, 'color' => $color
 $corner6 = new Vertex( array( 'x' => -1, 'y' => -1, 'z' => -3, 'color' => $color ) );
 $corner7 = new Vertex( array( 'x' => -1, 'y' => 1, 'z' => -5, 'color' => $color ) );
 $corner8 = new Vertex( array( 'x' => -1, 'y' => 1, 'z' => -3, 'color' => $color ) );
-
 $center = new Vertex( array( 'x' => 0, 'y' => 0, 'z' => -4, 'color' => $centerColor) );
+
 $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7, $corner8, $center];
 
 $worldToCenter = new Matrix(['preset' => Matrix::CENTER, 'center' => $center]);
@@ -48,13 +38,14 @@ $S  = new Matrix( array( 'preset' => Matrix::SCALE, 'scale' => 40.0 ) );
 $vtx = new Vertex( array( 'x' => 445, 'y' => 445, 'z' => 1 ) );
 $vtc = new Vector( array( 'dest' => $vtx ) );
 $T  = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc ) );
-$RY = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 0.8) );
+$RX = new Matrix( array( 'preset' => Matrix::RX, 'angle' => 0) );
+$RY = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 0) );
+$RZ = new Matrix( array( 'preset' => Matrix::RZ, 'angle' => 0) );
 
 foreach ($corners as &$corner) 
 {
-    $corner = $worldToCenter->multMatrix($RY)->transformVertex($corner); 
     $corner = $centerToWorld->transformVertex($corner); 
-    $corner = $T->multMatrix($S)->transformVertex($corner);
+    $corner = $T->multMatrix($S)->multMatrix($RY)->multMatrix($RZ)->multMatrix($RX)->transformVertex($corner);
     $corner = $worldToCamera->transformVertex($corner);
     $projectedCorners [] = $projection->transformVertex($corner);
 }

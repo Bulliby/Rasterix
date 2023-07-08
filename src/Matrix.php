@@ -250,7 +250,7 @@ class Matrix
         $this->matrix = [
             [1, 0, 0, 0],
             [0, 1, 0, 0],
-            [0,0, 1, 0],
+            [0, 0, 1, 0],
             [$this->center->getX(), $this->center->getY(), $this->center->getZ(), 1],
         ];
 
