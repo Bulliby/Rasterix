@@ -30,7 +30,7 @@ $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7
 session_start();
 
 if (empty($_SESSION)) {
-    $_SESSION['from'] = new Vertex(['x' => 100, 'y' => 120, 'z' => -100]);
+    $_SESSION['from'] = new Vertex(['x' => 0, 'y' => 0, 'z' => 0]);
 }
 
 if (isset($_POST['x-translation'])) {
@@ -66,18 +66,19 @@ if (isset($_POST['z-rotation'])) {
 }
 
 
-$to = new Vertex( array( 'x' => $corner1->getX(), 'y' =>$corner1->getY(), 'z' => $corner1->getZ(), 'color' => $color ) );
+// Z need to be negative to watch forward
+$to = new Vertex( array( 'x' => 445, 'y' => 445, 'z' => -445, 'color' => $color ) );
 $cameraToWorld = new Matrix( array( 'preset' => Matrix::CAMERATOWORLD , 'from' => $_SESSION['from'], 'to' => $to));
 $worldToCamera = new Matrix(['preset' => Matrix::INVERSE, 'matrix' => $cameraToWorld]);
 $projection = new Matrix(['preset' => Matrix::PROJECTION, 'fov' => 60, 'ratio' => 1, 'near' => 1.0, 'far' => -50.0]);
 
 $S  = new Matrix( array( 'preset' => Matrix::SCALE, 'scale' => 40.0 ) );
-$vtx = new Vertex( array( 'x' => -250, 'y' => 200, 'z' => 0.0 ) );
+$vtx = new Vertex( array( 'x' => 445, 'y' => 445, 'z' => 1 ) );
 $vtc = new Vector( array( 'dest' => $vtx ) );
 $T  = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc ) );
 foreach ($corners as &$corner) 
 {
-    $corner = $T->multMatrix($S)->transformVertex($corner);
+    $corner = $T->transformVertex($corner);
     $corner = $worldToCamera->transformVertex($corner);
     $projectedCorners [] = $projection->transformVertex($corner);
 }

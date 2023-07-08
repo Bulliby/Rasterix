@@ -13,6 +13,7 @@ class Matrix
     public const PROJECTION = "PROJECTION";
     public const CAMERATOWORLD = "CAMERATOWORLD";
     public const INVERSE = "INVERSE";
+    public const CENTER = "CENTER";
 
     public const SIZE = 4;
 
@@ -29,6 +30,7 @@ class Matrix
     private float $fov;
     private Vertex $from;
     private Vertex $to;
+    private Vertex $center;
 
     /**
      * @var array<array<int>> $matrix
@@ -112,6 +114,13 @@ class Matrix
                     throw new InvalidArgumentsException();
                 }
                 $this->matInverse($args['matrix']);
+                break;
+            case self::CENTER:
+                if (false === array_key_exists('center', $args)) {
+                    throw new InvalidArgumentsException();
+                }
+                $this->center = $args['center'];
+                $this->createCenterMatrix();
                 break;
             default:
             throw new InvalidArgumentsException();
@@ -236,6 +245,18 @@ class Matrix
         return $this;
     }
 
+    private function createCenterMatrix(): Matrix
+    {
+        $this->matrix = [
+            [1, 0, 0, 0],
+            [0, 1, 0, 0],
+            [0,0, 1, 0],
+            [$this->center->getX(), $this->center->getY(), $this->center->getZ(), 1],
+        ];
+
+        return $this;
+    }
+
     public function matInverse(Matrix $matrix): Matrix
     {
         $identity = $this->createIdentityMatrix();
@@ -310,6 +331,7 @@ class Matrix
 
     public function transformVertex(Vertex $vertex): Vertex
     {
+        $color = $vertex->getColor();
         $vertex = $vertex->toArray();
 
         $ret = [];
@@ -323,7 +345,7 @@ class Matrix
             }
         }
 
-        return Vertex::toVertex($ret);
+        return Vertex::toVertex($ret, $color);
     }
 
     public function multMatrix(Matrix $matrix): self

@@ -2,6 +2,8 @@
 
 namespace Waxer\Rasterix;
 
+use Waxer\Rasterix\Color;
+
 class Vertex
 {
     private float $x;
@@ -110,9 +112,9 @@ class Vertex
     /**
      * @param array<float> $array
      */
-    public static function toVertex(array $array): self
+    public static function toVertex(array $array, Color $color): self
     {
-        return new Vertex(['x' => $array[0], 'y' => $array[1], 'z' => $array[2], 'w' => 1]);
+        return new Vertex(['x' => $array[0], 'y' => $array[1], 'z' => $array[2], 'w' => 1, 'color' => $color]);
     }
 
     public function getX(): float

@@ -1,9 +1,13 @@
 <?php
 
 /**
- * Define a Camera To World matrix who encode the poistion of the camera with respect to the World coordinate system
- * Apply on the vertex's scene the World to Camera to matrix to obtain vertex on the camera coordinate system
- * Apply the projection Matrix
+ * Make move a model on his axis center
+ * Define a coordinate system in the centre of model
+ * Apply world to center Matrix
+ * Apply rotation and other transformation
+ * Apply the Center to World matrix
+ * Apply the world to camera matrix
+ * Project
  */
 
 use Waxer\Rasterix\Color;
@@ -31,20 +35,25 @@ $corner8 = new Vertex( array( 'x' => -1, 'y' => 1, 'z' => -3, 'color' => $color 
 $center = new Vertex( array( 'x' => 0, 'y' => 0, 'z' => -4, 'color' => $centerColor) );
 $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7, $corner8, $center];
 
-$from = new Vertex(['x' => 100, 'y' => 120, 'z' => -100]);
-$RY = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 1) );
-$from = $RY->transformVertex($from);
-$to = new Vertex( array( 'x' => $corner1->getX(), 'y' =>$corner1->getY(), 'z' => $corner1->getZ(), 'color' => $color ) );
+$worldToCenter = new Matrix(['preset' => Matrix::CENTER, 'center' => $center]);
+$centerToWorld = new Matrix(['preset' => Matrix::INVERSE, 'matrix' => $worldToCenter]);
+
+$from = new Vertex(['x' => 0, 'y' => 0, 'z' => 0]);
+$to = new Vertex( array( 'x' => 445, 'y' => 445, 'z' => -445, 'color' => $color ) );
 $cameraToWorld = new Matrix( array( 'preset' => Matrix::CAMERATOWORLD , 'from' => $from, 'to' => $to));
 $worldToCamera = new Matrix(['preset' => Matrix::INVERSE, 'matrix' => $cameraToWorld]);
 $projection = new Matrix(['preset' => Matrix::PROJECTION, 'fov' => 60, 'ratio' => 1, 'near' => 1.0, 'far' => -50.0]);
 
 $S  = new Matrix( array( 'preset' => Matrix::SCALE, 'scale' => 40.0 ) );
-$vtx = new Vertex( array( 'x' => -250, 'y' => 200, 'z' => 0.0 ) );
+$vtx = new Vertex( array( 'x' => 445, 'y' => 445, 'z' => 1 ) );
 $vtc = new Vector( array( 'dest' => $vtx ) );
 $T  = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc ) );
+$RY = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 0.8) );
+
 foreach ($corners as &$corner) 
 {
+    $corner = $worldToCenter->multMatrix($RY)->transformVertex($corner); 
+    $corner = $centerToWorld->transformVertex($corner); 
     $corner = $T->multMatrix($S)->transformVertex($corner);
     $corner = $worldToCamera->transformVertex($corner);
     $projectedCorners [] = $projection->transformVertex($corner);
