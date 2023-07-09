@@ -3,7 +3,7 @@ const formData = new FormData();
 
 // TRANSLATION
 
-const STEP = 1;
+const STEP = 10;
 
 let xUp = document.getElementById('x-up');
 xUp.addEventListener('click', function (e) {

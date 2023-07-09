@@ -7,8 +7,6 @@ use Waxer\Rasterix\Vector;
 
 require_once '/srv/http/vendor/autoload.php';
 
-session_start();
-
 $color = new Color(['red' => 255, 'green' => 0, 'blue' => 0]);
 $centerColor = new Color(['red' => 255, 'green' => 255, 'blue' => 255]);
 
@@ -27,33 +25,6 @@ $center = new Vertex( array( 'x' => 0, 'y' => 0, 'z' => -4, 'color' => $centerCo
 
 $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7, $corner8, $center];
 
-$M = new Matrix(['preset' => Matrix::IDENTITY]);
-
-if (empty($_SESSION)) {
-    $_SESSION['x-translation'] = 225;
-    $_SESSION['y-translation'] = 225;
-    $_SESSION['z-translation'] = 1;
-}
-
-$_SESSION['x-translation'] += $_POST['x-translation'] ?? 0;
-$_SESSION['y-translation'] += $_POST['y-translation'] ?? 0;
-$_SESSION['z-translation'] += $_POST['z-translation'] ?? 0;
-$_SESSION['z-rotation'] += $_POST['z-rotation'] ?? 0;
-$_SESSION['y-rotation'] += $_POST['y-rotation'] ?? 0;
-$_SESSION['x-rotation'] += $_POST['x-rotation'] ?? 0;
-
-
-
-$S  = new Matrix( array( 'preset' => Matrix::SCALE, 'scale' => 40.0 ) );
-//$vtx = new Vertex( array( 'x' => 445, 'y' => 445, 'z' => 1 ) );
-$vtx = new Vertex(['x' => $_SESSION['x-translation'], 'y' => $_SESSION['y-translation'], 'z' => $_SESSION['z-translation']]);
-$vtc = new Vector( array( 'dest' => $vtx ) );
-$T  = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc ) );
-
-$RX = new Matrix(['preset' => Matrix::RX, 'angle' => $_SESSION['x-rotation']]);
-$RY = new Matrix(['preset' => Matrix::RY, 'angle' => $_SESSION['y-rotation']]);
-$RZ = new Matrix(['preset' => Matrix::RZ, 'angle' => $_SESSION['z-rotation']]);
-
 $worldToCenter = new Matrix(['preset' => Matrix::CENTER, 'center' => $center]);
 $centerToWorld = new Matrix(['preset' => Matrix::INVERSE, 'matrix' => $worldToCenter]);
 
@@ -63,13 +34,25 @@ $cameraToWorld = new Matrix( array( 'preset' => Matrix::CAMERATOWORLD , 'from' =
 $worldToCamera = new Matrix(['preset' => Matrix::INVERSE, 'matrix' => $cameraToWorld]);
 $projection = new Matrix(['preset' => Matrix::PROJECTION, 'fov' => 60, 'ratio' => 1, 'near' => 1.0, 'far' => -50.0]);
 
+$S  = new Matrix( array( 'preset' => Matrix::SCALE, 'scale' => 40.0 ) );
+$vtx = new Vertex( array( 'x' => 255, 'y' => 255, 'z' => 1 ) );
+$vtc = new Vector( array( 'dest' => $vtx ) );
+$T  = new Matrix( array( 'preset' => Matrix::TRANSLATION, 'vtc' => $vtc ) );
+$RX = new Matrix( array( 'preset' => Matrix::RX, 'angle' => 0.5) );
+$RY = new Matrix( array( 'preset' => Matrix::RY, 'angle' => 0) );
+$RZ = new Matrix( array( 'preset' => Matrix::RZ, 'angle' => 0) );
+
 foreach ($corners as &$corner) 
 {
     $corner = $centerToWorld->transformVertex($corner); 
-    $corner = $RY->multMatrix($RZ)->multMatrix($RX)->transformVertex($corner);
+    $corner = $RX->transformVertex($corner);
     $corner = $worldToCamera->transformVertex($corner);
-    //apply them in the reverse order of the desired transformations
-    $corner = $T->multMatrix($S)->transformVertex($corner);
+}
+
+foreach ($corners as &$corner) 
+{
+    $corner = $S->transformVertex($corner);
+    $corner = $T->transformVertex($corner);
     $projectedCorners [] = $projection->transformVertex($corner);
 }
 
