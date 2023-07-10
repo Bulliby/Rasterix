@@ -1,20 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Waxer\Rasterix;
+
+use Waxer\Rasterix\Enums\MatrixType;
 
 class Matrix
 {
-    public const IDENTITY = "IDENTITY";
-    public const SCALE = "SCALE";
-    public const RX = "RX";
-    public const RY = "RY";
-    public const RZ = "RZ";
-    public const TRANSLATION = "TRANSLATION";
-    public const PROJECTION = "PROJECTION";
-    public const CAMERATOWORLD = "CAMERATOWORLD";
-    public const INVERSE = "INVERSE";
-    public const CENTER = "CENTER";
-
     public const SIZE = 4;
 
     private float $scale;
@@ -26,8 +19,8 @@ class Matrix
     private float $ratio;
     private float $near;
     private float $far;
-
     private float $fov;
+
     private Vertex $from;
     private Vertex $to;
     private Vertex $center;
@@ -48,45 +41,45 @@ class Matrix
             throw new InvalidArgumentsException();
         }
         switch ($args['preset']) {
-            case self::IDENTITY:
+            case MatrixType::Identity:
                 $this->createIdentityMatrix();
                 break;
-            case self::SCALE:
+            case MatrixType::Scale:
                 if (false === array_key_exists('scale', $args)) {
                     throw new InvalidArgumentsException();
                 }
                 $this->scale = $args['scale'];
                 $this->createScaleMatrix();
                 break;
-            case self::RX:
+            case MatrixType::RX:
                 if (false === array_key_exists('angle', $args)) {
                     throw new InvalidArgumentsException();
                 }
                 $this->angle = $args['angle'];
                 $this->createRxMatrix();
                 break;
-            case self::RY:
+            case MatrixType::RY:
                 if (false === array_key_exists('angle', $args)) {
                     throw new InvalidArgumentsException();
                 }
                 $this->angle = $args['angle'];
                 $this->createRyMatrix();
                 break;
-            case self::RZ:
+            case MatrixTye::RZ:
                 if (false === array_key_exists('angle', $args)) {
                     throw new InvalidArgumentsException();
                 }
                 $this->angle = $args['angle'];
                 $this->createRzMatrix();
                 break;
-            case self::TRANSLATION:
+            case MatrixTye::Translation:
                 if (false === array_key_exists('vtc', $args)) {
                     throw new InvalidArgumentsException();
                 }
                 $this->vtc = $args['vtc'];
                 $this->createTranslationMatrix();
                 break;
-            case self::PROJECTION:
+            case MatrixType::Projection:
                 if (false === array_key_exists('fov', $args)
                     && array_key_exists('ratio', $args)
                     && array_key_exists('near', $args)
@@ -100,7 +93,7 @@ class Matrix
                 $this->far = $args['far'];
                 $this->createProjectionMatrix();
                 break;
-            case self::CAMERATOWORLD:
+            case MatrixTye::View:
                 if (false === array_key_exists('to', $args)
                     && array_key_exists('from', $args)) {
                     throw new InvalidArgumentsException();
@@ -109,17 +102,17 @@ class Matrix
                 $this->to = $args['to'];
                 $this->createCameraToWorlMatrix();
                 break;
-            case self::INVERSE:
+            case MatrixType::Inverse:
                 if (false === array_key_exists('matrix', $args)) {
                     throw new InvalidArgumentsException();
                 }
                 $this->matInverse($args['matrix']);
                 break;
-            case self::CENTER:
-                if (false === array_key_exists('center', $args)) {
+            case MatrixType::Custom:
+                if (false === array_key_exists('point', $args)) {
                     throw new InvalidArgumentsException();
                 }
-                $this->center = $args['center'];
+                $this->point = $args['point'];
                 $this->createCenterMatrix();
                 break;
             default:
