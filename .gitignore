@@ -1,3 +1,4 @@
 main_*
 /vendor/
 .php-cs-fixer.cache
+node_modules

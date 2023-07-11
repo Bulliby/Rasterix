@@ -6,11 +6,11 @@
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <meta name="description" content="" />
         <link rel="icon" href="favicon.png">
-        <script defer src="rasterix.js"></script>
     </head>
     <div class="container">
         <iframe id="render" title="Rasterix render window" width="1600" height="1300" src="http://rasterix.test/rasterix.php"></iframe>
         <form>
+            <x-range :name.prop="x-rotation"></x-range>
             <h3>ROTATION Z</h3>
             <button id="z-r-up">+</button>
             <button id="z-r-down">-</button>
@@ -32,6 +32,55 @@
         </form>
     </div>
 </html>
+
+<script type="module">
+    import { defineCustomElement } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+    const Range = defineCustomElement({
+        // normal Vue component options here
+        props: {
+            name: String,
+        },
+        data () {
+            return  {
+                range: 0,
+                url: `http://rasterix.test/rasterix.php`,
+                prevent: 0
+            }
+        },
+        methods: {
+            generate() {
+                if (this.prevent === 1)
+                    return;
+                this.prevent = 1;
+                const formData = new FormData();
+                formData.append("x-rotation", this.range) 
+                fetch(this.url, { method: 'POST', body: formData })
+                .then(() => {
+                    formData.delete(`${this.name}`) 
+                    document.getElementById('render').contentWindow.location.reload();
+                    this.prevent = 0;
+                });
+            }
+        },
+        template: `<input type="range" v-model="range" @input="generate" min="0" max="3.2" step="0.1"/>`,
+
+        // defineCustomElement only: CSS to be injected into shadow root
+        styles: [`/* inlined css */`]
+    })
+
+    // Register the custom element.
+    // After registration, all `<my-vue-element>` tags
+    // on the page will be upgraded.
+    customElements.define('x-range', Range)
+
+    // You can also programmatically instantiate the element:
+    // (can only be done after registration)
+    document.body.appendChild(
+        new Range({
+            // initial props (optional)
+        })
+    )
+</script>
 
 <style>
 * {
