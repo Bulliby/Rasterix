@@ -67,7 +67,7 @@ foreach ($corners as &$corner)
 {
     $corner = $centerToWorld->transformVertex($corner); 
     $corner = $RY->multMatrix($RZ)->multMatrix($RX)->transformVertex($corner);
-    $corner = $worldToCamera->transformVertex($corner);
+    //$corner = $worldToCamera->transformVertex($corner);
     //apply them in the reverse order of the desired transformations
     $corner = $T->multMatrix($S)->transformVertex($corner);
     $projectedCorners [] = $projection->transformVertex($corner);
