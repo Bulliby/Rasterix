@@ -9,26 +9,19 @@
     </head>
     <div class="container">
         <iframe id="render" title="Rasterix render window" width="1600" height="1300" src="http://rasterix.test/rasterix.php"></iframe>
-        <form>
-            <x-range :name.prop="x-rotation"></x-range>
-            <h3>ROTATION Z</h3>
-            <button id="z-r-up">+</button>
-            <button id="z-r-down">-</button>
-            <h3>Translation Z</h3>
-            <button id="z-up">+</button>
-            <button id="z-down">-</button>
-            <h3>Translation X</h3>
-            <button id="x-up">+</button>
-            <button id="x-down">-</button>
-            <h3>Translation Y</h3>
-            <button id="y-up">+</button>
-            <button id="y-down">-</button>
-            <h3>ROTATION Y</h3>
-            <button id="y-r-up">+</button>
-            <button id="y-r-down">-</button>
-            <h3>ROTATION X</h3>
-            <button id="x-r-up">+</button>
-            <button id="x-r-down">-</button>
+        <form class="form">
+            <label for="x-rotation">Rotation X</label>
+            <x-range id="x-rotation" name="x-rotation" min="0.0" max="3.2" step="0.1"></x-range>
+            <label for="y-rotation">Rotation Y</label>
+            <x-range id="y-rotation" name="y-rotation" min="0.0" max="3.2" step="0.1"></x-range>
+            <label for="z-rotation">Rotation Z</label>
+            <x-range id="z-rotation" name="z-rotation" min="0.0" max="3.2" step="0.1"></x-range>
+            <label for="x-translation">Translation X</label>
+            <x-range id="x-translation" name="x-translation" min="-50" max="555" step="1"></x-range>
+            <label for="y-translation">Translation Y</label>
+            <x-range id="y-translation" name="y-translation" min="-50" max="555" step="1"></x-range>
+            <label for="z-translation">Translation Z</label>
+            <x-range id="z-translation" name="z-translation" min="-50" max="555" step="1"></x-range>
         </form>
     </div>
 </html>
@@ -39,6 +32,9 @@
         // normal Vue component options here
         props: {
             name: String,
+            min: Number,
+            max: Number,
+            step: Number
         },
         data () {
             return  {
@@ -49,11 +45,12 @@
         },
         methods: {
             generate() {
+                console.log(this.name)
                 if (this.prevent === 1)
                     return;
                 this.prevent = 1;
                 const formData = new FormData();
-                formData.append("x-rotation", this.range) 
+                formData.append(`${this.name}`, this.range) 
                 fetch(this.url, { method: 'POST', body: formData })
                 .then(() => {
                     formData.delete(`${this.name}`) 
@@ -62,7 +59,7 @@
                 });
             }
         },
-        template: `<input type="range" v-model="range" @input="generate" min="0" max="3.2" step="0.1"/>`,
+        template: `<input type="range" v-model="range" @input="generate" :min="min" :max="max" :step="step"/>`,
 
         // defineCustomElement only: CSS to be injected into shadow root
         styles: [`/* inlined css */`]
@@ -93,5 +90,10 @@
  }
  .container {
      display: flex;
+ }
+
+ .form {
+     display: flex;
+    flex-direction: column; 
  }
 </style>

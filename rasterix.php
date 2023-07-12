@@ -31,28 +31,32 @@ $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7
 $M = new Matrix(MatrixType::Identity);
 
 if (empty($_SESSION)) {
-    $_SESSION['x-translation'] = 225;
-    $_SESSION['y-translation'] = 225;
+    $_SESSION['x-translation'] = 250;
+    $_SESSION['y-translation'] = 250;
     $_SESSION['z-translation'] = 1;
+    $_SESSION['x-rotation'] = 0;
+    $_SESSION['y-rotation'] = 0;
+    $_SESSION['z-rotation'] = 0;
 }
 
-$_SESSION['x-translation'] += $_POST['x-translation'] ?? 0;
-$_SESSION['y-translation'] += $_POST['y-translation'] ?? 0;
-$_SESSION['z-translation'] += $_POST['z-translation'] ?? 0;
-$_SESSION['z-rotation'] += $_POST['z-rotation'] ?? 0;
-$_SESSION['y-rotation'] += $_POST['y-rotation'] ?? 0;
-$_SESSION['x-rotation'] += $_POST['x-rotation'] ?? 0;
+$_SESSION['x-translation'] = $_POST['x-translation'] ?? $_SESSION['x-translation'];
+$_SESSION['y-translation'] = $_POST['y-translation'] ?? $_SESSION['y-translation'];
+$_SESSION['z-translation'] = $_POST['z-translation'] ?? $_SESSION['y-translation'];
+$_SESSION['z-rotation'] = $_POST['z-rotation'] ?? $_SESSION['x-rotation'];
+$_SESSION['y-rotation'] = $_POST['y-rotation'] ?? $_SESSION['y-rotation'];
+$_SESSION['x-rotation'] = $_POST['x-rotation'] ?? $_SESSION['z-rotation'];
 
 
 
 $S  = new Matrix(MatrixType::Scale, 40.0);
 //$vtx = new Vertex( array( 'x' => 445, 'y' => 445, 'z' => 1 ) );
-$vtx = new Vertex(['x' => $_SESSION['x-translation'], 'y' => $_SESSION['y-translation'], 'z' => $_SESSION['z-translation']]);
+//$vtx = new Vertex(['x' => (float) $_SESSION['x-translation'], 'y' => (float) $_SESSION['y-translation'], 'z' => (float) $_SESSION['z-translation']]);
+$vtx = new Vertex(['x' => (float) $_SESSION['x-translation'], 'y' => (float) $_SESSION['y-translation'], 'z' => (float) $_SESSION['z-translation']]);
 $vtc = new Vector( array( 'dest' => $vtx ) );
 $T = new Matrix(MatrixType::Translation, $vtc);
-$RX = new Matrix(MatrixType::RX, $_SESSION['x-rotation']);
-$RY = new Matrix(MatrixType::RY, $_SESSION['y-rotation']);
-$RZ = new Matrix(MatrixType::RZ, $_SESSION['z-rotation']);
+$RX = new Matrix(MatrixType::RX, (float) $_SESSION['x-rotation']);
+$RY = new Matrix(MatrixType::RY, (float) $_SESSION['y-rotation']);
+$RZ = new Matrix(MatrixType::RZ, (float) $_SESSION['z-rotation']);
 
 $worldToCenter = new Matrix(MatrixType::Custom, $center);
 $centerToWorld = new Matrix(MatrixType::Inverse, $worldToCenter);
