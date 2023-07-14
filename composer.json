@@ -17,9 +17,11 @@
             "email": "wellsguillaume@gmail.com"
         }
     ],
-    "require": {},
-	"scripts": {
+    "scripts": {
 		"phpstan": "php vendor/phpstan/phpstan/phpstan.phar analyze",
 		"cs-fixer": "php vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src/"
-	}	
+	},
+    "require": {
+        "symfony/var-dumper": "^6.3"
+    }
 }
