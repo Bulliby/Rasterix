@@ -41,7 +41,7 @@ if (empty($_SESSION)) {
 
 $_SESSION['x-translation'] = $_POST['x-translation'] ?? $_SESSION['x-translation'];
 $_SESSION['y-translation'] = $_POST['y-translation'] ?? $_SESSION['y-translation'];
-$_SESSION['z-translation'] = $_POST['z-translation'] ?? $_SESSION['y-translation'];
+$_SESSION['z-translation'] = $_POST['z-translation'] ?? $_SESSION['z-translation'];
 $_SESSION['z-rotation'] = $_POST['z-rotation'] ?? $_SESSION['x-rotation'];
 $_SESSION['y-rotation'] = $_POST['y-rotation'] ?? $_SESSION['y-rotation'];
 $_SESSION['x-rotation'] = $_POST['x-rotation'] ?? $_SESSION['z-rotation'];
