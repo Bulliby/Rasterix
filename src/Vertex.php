@@ -63,42 +63,24 @@ class Vertex
         ];
     }
 
-    /**
-     * Perspective divide or z divide
-     */
-    public static function projectPoint(Vertex $point): Vertex
+    public static function projectPoint(Vertex $corner): Vertex
     {
-        $x_proj = $point->getX() / - $point->getZ();
-        $y_proj = $point->getY() / - $point->getZ();
-        $x_NDC = $x_proj / 2;
-        $y_NDC = $y_proj / 2;
-        $x_rast = $x_NDC * IMAGE_WIDTH;
-        $y_rast = $y_NDC * IMAGE_HEIGHT;
-        
-        return new Vertex( array( 'x' => $x_rast, 'y' => $y_rast, 'color' => $point->getColor() ) );
-    }
+        $x_proj = $corner->getX() / - $corner->getZ();
+        $y_proj = $corner->getY() / - $corner->getZ();
 
-    /**
-     * Perspective divide or z divide.
-     * Here we consider that canvas is at 1 unit from the "eye"
-     * We need other type of computation if we want something else
-     * Projection matrix.
-     * We assume that the canva has a size of 2.
-     */
-    public static function projectPoint3(Vertex $point): Vertex
-    {
-        $x_proj = $point->getX() /  - $point->getZ();
-        $y_proj = $point->getY() / - $point->getZ();
-        /* $x_proj = $point->getX() /  - ($point->getZ() ?? - 1); */
-        /* $y_proj = $point->getY() / - ($point->getZ() ?? - 1); */
+        if ($x_proj > IMAGE_WIDTH / 2 || $y_proj > IMAGE_HEIGHT / 2) {
+            /* dump($x_proj); */
+            /* dump($y_proj); */
+            dd('reached');
+        }
 
-
-        $x_NDC = ($x_proj + IMAGE_WIDTH) / IMAGE_WIDTH;
-        $y_NDC = ($y_proj + IMAGE_HEIGHT) / IMAGE_HEIGHT;
+        //Here 2 is for obtain [0,890] interval and no [-445, 445]
+        $x_NDC = ($x_proj + CANVAS_WIDTH / 2) / CANVAS_WIDTH;
+        $y_NDC = ($y_proj + CANVAS_HEIGHT / 2) / CANVAS_HEIGHT;
         $x_rast = floor($x_NDC * IMAGE_WIDTH);
         $y_rast = floor((1 - $y_NDC) * IMAGE_HEIGHT);
         
-        return new Vertex( array( 'x' => $x_rast, 'y' => $y_rast, 'color' => $point->getColor() ) );
+        return new Vertex( array( 'x' => $x_rast, 'y' => $y_rast, 'color' => $corner->getColor() ) );
     }
 
     /**
