@@ -41,16 +41,16 @@ if (empty($_SESSION)) {
     $_SESSION['z-rotation'] = 0;
 }
 
-$_SESSION['x-translation'] = $_POST['x-translation'] ?? $_SESSION['x-translation'];
-$_SESSION['y-translation'] = $_POST['y-translation'] ?? $_SESSION['y-translation'];
-$_SESSION['z-translation'] = $_POST['z-translation'] ?? $_SESSION['z-translation'];
-$_SESSION['x-rotation'] = $_POST['x-rotation'] ?? $_SESSION['x-rotation'];
-$_SESSION['y-rotation'] = $_POST['y-rotation'] ?? $_SESSION['y-rotation'];
-$_SESSION['z-rotation'] = $_POST['z-rotation'] ?? $_SESSION['z-rotation'];
+$_SESSION['x-translation'] = isset($_POST['x-translation']) ? (int) $_POST['x-translation'] : $_SESSION['x-translation'];
+$_SESSION['y-translation'] = isset($_POST['y-translation']) ? (int) $_POST['y-translation'] : $_SESSION['y-translation'];
+$_SESSION['z-translation'] = isset($_POST['z-translation']) ? (int) $_POST['z-translation'] : $_SESSION['z-translation'];
+$_SESSION['x-rotation'] = isset($_POST['x-rotation']) ? (float) $_POST['x-rotation'] : $_SESSION['x-rotation'];
+$_SESSION['y-rotation'] = isset($_POST['y-rotation']) ? (float) $_POST['y-rotation'] : $_SESSION['y-rotation'];
+$_SESSION['z-rotation'] = isset($_POST['z-rotation']) ? (float) $_POST['z-rotation'] : $_SESSION['z-rotation'];
 
 if (!empty($_POST['get-range'])) {
     header('Content-Type: application/json');
-    $ret = match($_POST['get-range']) {
+    $ret = match((string) $_POST['get-range']) {
         'x-translation' => $_SESSION['x-translation'],
         'y-translation' => $_SESSION['y-translation'],
         'z-translation' => $_SESSION['z-translation'],
