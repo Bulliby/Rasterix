@@ -15,8 +15,8 @@ $centerColor = new Color(['red' => 255, 'green' => 255, 'blue' => 255]);
 
 const IMAGE_WIDTH = 890;
 const IMAGE_HEIGHT = 890;
-const CANVAS_WIDTH = 4;
-const CANVAS_HEIGHT = 4;
+const CANVAS_WIDTH = 1;
+const CANVAS_HEIGHT = 1;
 
 $corner1 = new Vertex( array( 'x' => 1, 'y' => -1, 'z' => -5, 'color' => $color ) );
 $corner2 = new Vertex( array( 'x' => 1, 'y' => -1, 'z' => -3, 'color' => $color ) );
@@ -35,7 +35,7 @@ $M = new Matrix(MatrixType::Identity);
 if (empty($_SESSION)) {
     $_SESSION['x-translation'] = 0;
     $_SESSION['y-translation'] = 0;
-    $_SESSION['z-translation'] = -1;
+    $_SESSION['z-translation'] = -20;
     $_SESSION['x-rotation'] = 0;
     $_SESSION['y-rotation'] = 0;
     $_SESSION['z-rotation'] = 0;
@@ -44,9 +44,9 @@ if (empty($_SESSION)) {
 $_SESSION['x-translation'] = $_POST['x-translation'] ?? $_SESSION['x-translation'];
 $_SESSION['y-translation'] = $_POST['y-translation'] ?? $_SESSION['y-translation'];
 $_SESSION['z-translation'] = $_POST['z-translation'] ?? $_SESSION['z-translation'];
-$_SESSION['z-rotation'] = $_POST['z-rotation'] ?? $_SESSION['x-rotation'];
+$_SESSION['x-rotation'] = $_POST['x-rotation'] ?? $_SESSION['x-rotation'];
 $_SESSION['y-rotation'] = $_POST['y-rotation'] ?? $_SESSION['y-rotation'];
-$_SESSION['x-rotation'] = $_POST['x-rotation'] ?? $_SESSION['z-rotation'];
+$_SESSION['z-rotation'] = $_POST['z-rotation'] ?? $_SESSION['z-rotation'];
 
 if (!empty($_POST['get-range'])) {
     header('Content-Type: application/json');
@@ -76,20 +76,12 @@ $RZ = new Matrix(MatrixType::RZ, (float) $_SESSION['z-rotation']);
 $worldToCenter = new Matrix(MatrixType::Custom, $center);
 $centerToWorld = new Matrix(MatrixType::Inverse, $worldToCenter);
 
-$from = new Vertex(['x' => 0, 'y' => 0, 'z' => 0]);
-$to = new Vertex( array( 'x' => 445, 'y' => 445, 'z' => -445, 'color' => $color ) );
-$cameraToWorld = new Matrix(MatrixType::View, $from, $to);
-$worldToCamera = new Matrix(MatrixType::Inverse, $cameraToWorld);
-$projection = new Matrix(MatrixType::Projection, 1, 1.0, -50.0, 60);
-
 foreach ($corners as &$corner) 
 {
     $corner = $centerToWorld->transformVertex($corner); 
-    $corner = $RY->multMatrix($RZ)->multMatrix($RX)->transformVertex($corner);
-    //$corner = $worldToCamera->transformVertex($corner);
-    //apply them in the reverse order of the desired transformations
-    $corner = $T->multMatrix($S)->transformVertex($corner); 
-    //$projectedCorners [] = $projection->transformVertex($corner);
+    $corner = $RX->multMatrix($RY)->multMatrix($RZ)->transformVertex($corner);
+    $corner = $worldToCenter->transformVertex($corner); 
+    $corner = $T->transformVertex($corner);
     $projectedCorners [] = Vertex::projectPoint($corner);
 }
 

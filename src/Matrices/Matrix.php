@@ -59,6 +59,13 @@ class Matrix
             }
         }
 
+        // See if needed
+        /* if ($ret[3] != 1 && $ret[3] != 0) { */
+        /*     $ret[0] /= $ret[3]; */
+        /*     $ret[1] /= $ret[3]; */
+        /*     $ret[2] /= $ret[3]; */
+        /* } */
+
         return Vertex::toVertex($ret, $color);
     }
 

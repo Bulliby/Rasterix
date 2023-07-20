@@ -68,12 +68,6 @@ class Vertex
         $x_proj = $corner->getX() / - $corner->getZ();
         $y_proj = $corner->getY() / - $corner->getZ();
 
-        if ($x_proj > IMAGE_WIDTH / 2 || $y_proj > IMAGE_HEIGHT / 2) {
-            /* dump($x_proj); */
-            /* dump($y_proj); */
-            dd('reached');
-        }
-
         //Here 2 is for obtain [0,890] interval and no [-445, 445]
         $x_NDC = ($x_proj + CANVAS_WIDTH / 2) / CANVAS_WIDTH;
         $y_NDC = ($y_proj + CANVAS_HEIGHT / 2) / CANVAS_HEIGHT;
