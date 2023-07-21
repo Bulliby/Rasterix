@@ -6,7 +6,7 @@ use Waxer\Rasterix\Vertex;
 use Waxer\Rasterix\Vector;
 use Waxer\Rasterix\Enums\MatrixType;
 
-require_once '/srv/http/Rasterix/vendor/autoload.php';
+require_once '../vendor/autoload.php';
 
 session_start();
 

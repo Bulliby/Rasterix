@@ -1,3 +1,14 @@
+<?php
+    if(file_exists("./.env.prod")) {
+        $url = "https://rasterix.wellsguillaume.fr/rasterix.php";
+    }
+    else if(file_exists("./.env.local")) {
+        $url = "http://rasterix.test/rasterix.php";
+    }
+    else {
+        exit(403);
+    }
+?>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -6,9 +17,10 @@
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <meta name="description" content="" />
         <link rel="icon" href="favicon.png">
+        <div id="url" data-url="<?= $url ?>" />
     </head>
     <div class="container">
-        <iframe id="render" title="Rasterix render window" width="890" height="890" src="https://rasterix.wellsguillaume.fr/rasterix.php"></iframe>
+        <iframe id="render" title="Rasterix render window" width="890" height="890" src="<?= $url ?>"></iframe>
         <form class="form">
             <label for="x-rotation">Rotation X</label>
             <x-range id="x-rotation" name="x-rotation" min="0.0" max="3.2" step="0.001"></x-range>
@@ -39,7 +51,7 @@
         data () {
             return  {
                 range: 0,
-                url: `https://rasterix.wellsguillaume.fr/rasterix.php`,
+                url: document.getElementById('url').dataset.url,
                 prevent: 0,
             }
         },
