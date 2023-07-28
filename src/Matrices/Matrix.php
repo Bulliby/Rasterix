@@ -20,9 +20,12 @@ class Matrix
 {
     const SIZE = 4;
 
+    /**
+     * @var array<array<int>>
+     */
     private array $matrix;
 
-    public function __construct(MatrixType $preset, ...$params)
+    public function __construct(MatrixType $preset, mixed ...$params)
     {
         $this->matrix = match($preset) {
             MatrixType::Identity => (new Identity)(),
@@ -38,6 +41,9 @@ class Matrix
         };
     }
 
+    /**
+     * @return array<array<int>>
+     */
     public function getMatrix(): array
     {
         return $this->matrix;

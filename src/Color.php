@@ -76,7 +76,7 @@ class Color
         }
     }
 
-    public function allocateGDColor($image)
+    public function allocateGDColor(\GdImage $image): int|false
     {
         return imagecolorallocate($image, $this->red, $this->green, $this->blue);
     }
