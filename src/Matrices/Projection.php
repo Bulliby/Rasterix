@@ -20,7 +20,7 @@ class Projection implements IMatrix
     {
         $scale =  1 / tan(0.5 * deg2rad($this->fov)); 
 
-        return $this->matrix = [
+        return [
             [$scale / $this->ratio, 0, 0, 0],
             [0, $scale, 0, 0],
             [0, 0, -1 * (-$this->near - $this->far) / ($this->near - $this->far), -1],

@@ -57,6 +57,7 @@ if (!empty($_POST['get-range'])) {
         'x-rotation' => $_SESSION['x-rotation'],
         'y-rotation' => $_SESSION['y-rotation'],
         'z-rotation' => $_SESSION['z-rotation'],
+        default => exit(403),
     };
 
     echo json_encode($ret);
