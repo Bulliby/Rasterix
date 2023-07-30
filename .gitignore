@@ -2,5 +2,3 @@ main_*
 /vendor/
 .php-cs-fixer.cache
 node_modules
-public/.env.local
-public/.env.prod
