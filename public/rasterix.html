@@ -1,14 +1,11 @@
 <?php
-    if(file_exists("./.env.prod")) {
-        $url = "https://rasterix.wellsguillaume.fr/rasterix.php";
-    }
-    else if(file_exists("./.env.local")) {
-        $url = "http://rasterix.test/rasterix.php";
-    }
-    else {
-        exit(403);
-    }
+    $url  = match(true) {
+        file_exists("./.env.prod") =>  "https://rasterix.wellsguillaume.fr/rasterix.php",
+        file_exists("./.env.local") =>  "http://rasterix.test/rasterix.php",
+        default => exit(403)
+    };
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
