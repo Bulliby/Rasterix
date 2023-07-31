@@ -8,8 +8,6 @@ use Waxer\Rasterix\Enums\MatrixType;
 
 require_once '../vendor/autoload.php';
 
-session_start();
-
 $color = new Color(['red' => 255, 'green' => 0, 'blue' => 0]);
 $centerColor = new Color(['red' => 255, 'green' => 255, 'blue' => 255]);
 
