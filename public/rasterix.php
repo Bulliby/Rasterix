@@ -13,8 +13,8 @@ $centerColor = new Color(['red' => 255, 'green' => 255, 'blue' => 255]);
 
 const IMAGE_WIDTH = 890;
 const IMAGE_HEIGHT = 890;
-const CANVAS_WIDTH = 1;
-const CANVAS_HEIGHT = 1;
+const CANVAS_WIDTH = 40;
+const CANVAS_HEIGHT = 40;
 
 $corner1 = new Vertex( array( 'x' => 1, 'y' => -1, 'z' => -5, 'color' => $color ) );
 $corner2 = new Vertex( array( 'x' => 1, 'y' => -1, 'z' => -3, 'color' => $color ) );
@@ -72,12 +72,13 @@ $RX = new Matrix(MatrixType::RX, (float) $_SESSION['x-rotation']);
 $RY = new Matrix(MatrixType::RY, (float) $_SESSION['y-rotation']);
 $RZ = new Matrix(MatrixType::RZ, (float) $_SESSION['z-rotation']);
 
-$worldToCenter = new Matrix(MatrixType::Custom, $center);
+$vtc = new Vector( array( 'dest' => $center ) );
+$worldToCenter = new Matrix(MatrixType::Translation, $vtc->opposite());
 $centerToWorld = new Matrix(MatrixType::Inverse, $worldToCenter);
 
 foreach ($corners as &$corner) 
 {
-    $corner = $centerToWorld->transformVertex($corner); 
+    $corner = $worldToCenter->transformVertex($corner); 
     $corner = $RX->multMatrix($RY)->multMatrix($RZ)->transformVertex($corner);
     $corner = $worldToCenter->transformVertex($corner); 
     $corner = $T->transformVertex($corner);
