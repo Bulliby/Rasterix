@@ -46,21 +46,23 @@
                 range: 0,
                 url: URL,
                 prevent: 0,
+                timer: null,
             }
         },
         methods: {
             generate() {
-                if (this.prevent === 1)
-                    return;
-                this.prevent = 1;
-                const formData = new FormData();
-                formData.append(`${this.name}`, this.range) 
-                fetch(this.url, { method: 'POST', body: formData })
-                .then(() => {
-                    formData.delete(`${this.name}`) 
-                    document.getElementById('render').contentWindow.location.reload();
-                    this.prevent = 0;
-                });
+                if (this.timer) {
+                    clearTimeout(this.timer);
+                }
+                this.timer = setTimeout(() => {
+                    const formData = new FormData();
+                    formData.append(`${this.name}`, this.range) 
+                    fetch(this.url, { method: 'POST', body: formData })
+                    .then(() => {
+                        formData.delete(`${this.name}`) 
+                        document.getElementById('render').contentWindow.location.reload();
+                    });
+                }, 100);
             }
         },
         created() {
