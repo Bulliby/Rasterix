@@ -63,20 +63,6 @@ class Vertex
         ];
     }
 
-    public static function projectPoint(Vertex $corner): Vertex
-    {
-        $x_proj = $corner->getX() / - $corner->getZ();
-        $y_proj = $corner->getY() / - $corner->getZ();
-
-        //Here 2 is for obtain [0,890] interval and no [-445, 445]
-        $x_NDC = ($x_proj + CANVAS_WIDTH / 2) / CANVAS_WIDTH;
-        $y_NDC = ($y_proj + CANVAS_HEIGHT / 2) / CANVAS_HEIGHT;
-        $x_rast = floor($x_NDC * IMAGE_WIDTH);
-        $y_rast = floor((1 - $y_NDC) * IMAGE_HEIGHT);
-        
-        return new Vertex( array( 'x' => $x_rast, 'y' => $y_rast, 'color' => $corner->getColor() ) );
-    }
-
     /**
      * @return array<int, float>
      */
