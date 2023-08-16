@@ -6,27 +6,32 @@
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <meta name="description" content="" />
         <link rel="icon" href="favicon.png">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     </head>
-    <div class="container">
+    <!-- container class is used by pico.css, so I rename it -->
+    <div class="view-container">
+        <div class="border-container">
+        </div>
         <img id="render" title="Rasterix render window"></iframe>
-        <form id="rangesForm" class="form">
-            <label for="x-rotation">Rotation X</label>
-            <x-range id="x-rotation" name="x-rotation" min="0.0" max="3.2" step="0.001"></x-range>
-            <label for="y-rotation">Rotation Y</label>
-            <x-range id="y-rotation" name="y-rotation" min="0.0" max="3.2" step="0.001"></x-range>
-            <label for="z-rotation">Rotation Z</label>
-            <x-range id="z-rotation" name="z-rotation" min="0.0" max="3.2" step="0.001"></x-range>
-            <label for="x-translation">Translation X</label>
-            <x-range id="x-translation" name="x-translation" min="-224" max="224" step="1"></x-range>
-            <label for="y-translation">Translation Y</label>
-            <x-range id="y-translation" name="y-translation" min="-224" max="224" step="1"></x-range>
-            <label for="scale">Scale</label>
-            <x-range id="scale" name="scale" min="1" max="890" step="1"></x-range>
-        </form>
+        <div class="form-container">
+            <form id="rangesForm" class="form">
+                <label for="x-rotation">Rotation X</label>
+                <x-range type="range" id="x-rotation" name="x-rotation" min="0.0" max="3.2" step="0.001"></x-range>
+                <label for="y-rotation">Rotation Y</label>
+                <x-range type="range" id="y-rotation" name="y-rotation" min="0.0" max="3.2" step="0.001"></x-range>
+                <label for="z-rotation">Rotation Z</label>
+                <x-range type="range" id="z-rotation" name="z-rotation" min="0.0" max="3.2" step="0.001"></x-range>
+                <label for="x-translation">Translation X</label>
+                <x-range type="range" id="x-translation" name="x-translation" min="-224" max="224" step="1"></x-range>
+                <label for="y-translation">Translation Y</label>
+                <x-range type="range" id="y-translation" name="y-translation" min="-224" max="224" step="1"></x-range>
+                <label for="scale">Scale</label>
+                <x-range type="range" id="scale" name="scale" min="1" max="890" step="1"></x-range>
+            </form>
+        </div>
     </div>
 </html>
 
-<!-- Style need to be before javascript to get the size of element (fit-content) -->
 <style>
 * {
     margin-block-start: 0;
@@ -34,20 +39,37 @@
 }
 
 body {
-    margin: 0;
     overflow: hidden;
 }
 
-.container {
+.view-container {
     display: flex;
-    margin: auto;
+}
+
+.form-container {
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.border-container {
+    flex-grow: 1;
 }
 
 .form {
-    width: 10%;
+    display: flex;
+    flex-direction: column;
+}
+
+/*
+.form {
+    width: fit-content;
     display: flex;
     flex-direction: column; 
 }
+*/
+
 </style>
 
 <script>
@@ -126,3 +148,4 @@ const Range = defineCustomElement({
 // on the page will be upgraded.
 customElements.define('x-range', Range)
 </script>
+
