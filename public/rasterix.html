@@ -8,8 +8,8 @@
         <link rel="icon" href="favicon.png">
     </head>
     <div class="container">
-        <iframe id="render" title="Rasterix render window" width="890" height="890" src=""></iframe>
-        <form class="form">
+        <img id="render" title="Rasterix render window"></iframe>
+        <form id="rangesForm" class="form">
             <label for="x-rotation">Rotation X</label>
             <x-range id="x-rotation" name="x-rotation" min="0.0" max="3.2" step="0.001"></x-range>
             <label for="y-rotation">Rotation Y</label>
@@ -26,87 +26,103 @@
     </div>
 </html>
 
-<script>
-    const URL = document.location.origin + '/rasterix.php';
-    document.getElementById('render').setAttribute('src', URL);
-</script>
-
-<script type="module">
-    import { defineCustomElement } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
-    const Range = defineCustomElement({
-        props: {
-            name: String, 
-            min: Number,
-            max: Number,
-            step: Number,
-        },
-        data () {
-            return  {
-                range: 0,
-                url: URL,
-                timer: null,
-            }
-        },
-        methods: {
-            generate() {
-                if (this.timer) {
-                    clearTimeout(this.timer);
-                }
-                this.timer = setTimeout(() => {
-                    const formData = new FormData();
-                    formData.append(`${this.name}`, this.range) 
-                    fetch(this.url, { method: 'POST', body: formData })
-                    .then(() => {
-                        formData.delete(`${this.name}`) 
-                        document.getElementById('render').contentWindow.location.reload();
-                    });
-                }, 100);
-            }
-        },
-        created() {
-            const formData = new FormData();
-            formData.append("get-range", `${this.name}`) 
-            fetch(this.url, { method: 'POST', body: formData })
-            .then((r) => r.json())
-            .then((data) => {
-                this.range = data;
-            });
-        },
-        template: `<input type="range" v-model.number="range" @input="generate" :min="min" :max="max" :step="step"/>`,
-
-        // defineCustomElement only: CSS to be injected into shadow root
-        styles: [`/* inlined css */`]
-    })
-
-    // Register the custom element.
-    // After registration, all `<my-vue-element>` tags
-    // on the page will be upgraded.
-    customElements.define('x-range', Range)
-</script>
-
+<!-- Style need to be before javascript to get the size of element (fit-content) -->
 <style>
 * {
     margin-block-start: 0;
     margin-block-end: 0;
 }
- body {
-     margin: 0;
-     overflow: hidden;
- }
 
- .container {
-     width: fit-content;
-     display: flex;
-     margin: 0 auto;
- }
+body {
+    margin: 0;
+    overflow: hidden;
+}
 
- iframe {
-     width: 890px;
-     border: none;
- }
+.container {
+    display: flex;
+    margin: auto;
+}
 
- .form {
-     display: flex;
+.form {
+    width: 10%;
+    display: flex;
     flex-direction: column; 
- }
+}
 </style>
+
+<script>
+let form = document.getElementById('rangesForm');
+let width = window.innerWidth - form.offsetWidth;
+let height = window.innerHeight;
+
+const URL = document.location.origin + '/rasterix.php';
+document.getElementById('render').setAttribute('src', URL);
+document.getElementById('render').setAttribute('width', height);
+document.getElementById('render').setAttribute('height', height);
+
+let size = JSON.stringify({'x' : height, 'y': height});
+const formData = new FormData();
+formData.append(`screen-size`, size) 
+
+fetch(URL, { method: 'POST', body: formData })
+    .then(() => {
+        document.getElementById('render').setAttribute('src', URL + '?t=' + new Date().getTime());
+    });
+
+</script>
+
+<script type="module">
+import { defineCustomElement } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+const Range = defineCustomElement({
+    props: {
+        name: String, 
+        min: Number,
+        max: Number,
+        step: Number,
+    },
+    data () {
+        return  {
+            range: 0,
+            url: URL,
+            timer: null,
+        }
+    },
+    methods: {
+        generate() {
+            if (this.timer) {
+                clearTimeout(this.timer);
+            }
+            this.timer = setTimeout(() => {
+                const formData = new FormData();
+                formData.append(`${this.name}`, this.range) 
+                fetch(this.url, { method: 'POST', body: formData })
+                    .then(() => {
+                        formData.delete(`${this.name}`) 
+                        document.getElementById('render').setAttribute('src', URL + '?t=' + new Date().getTime());
+                    });
+            }, 100);
+        }
+    },
+    /**
+         * Fetch the current value in SESSION for ranges inout.
+         */
+    created() {
+        const formData = new FormData();
+        formData.append("get-range", `${this.name}`) 
+        fetch(this.url, { method: 'POST', body: formData })
+            .then((r) => r.json())
+            .then((data) => {
+                this.range = data;
+            });
+    },
+    template: `<input type="range" v-model.number="range" @input="generate" :min="min" :max="max" :step="step"/>`,
+
+    // defineCustomElement only: CSS to be injected into shadow root
+    styles: [`/* inlined css */`]
+})
+
+// Register the custom element.
+// After registration, all `<x-range>` tags
+// on the page will be upgraded.
+customElements.define('x-range', Range)
+</script>
