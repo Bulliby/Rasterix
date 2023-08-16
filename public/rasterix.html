@@ -10,8 +10,6 @@
     <div class="container">
         <iframe id="render" title="Rasterix render window" width="890" height="890" src=""></iframe>
         <form class="form">
-            <label for="z-translation">Zoom</label>
-            <x-range id="z-translation" name="z-translation" min="-20" max="0" step="1"></x-range>
             <label for="x-rotation">Rotation X</label>
             <x-range id="x-rotation" name="x-rotation" min="0.0" max="3.2" step="0.001"></x-range>
             <label for="y-rotation">Rotation Y</label>
@@ -19,9 +17,11 @@
             <label for="z-rotation">Rotation Z</label>
             <x-range id="z-rotation" name="z-rotation" min="0.0" max="3.2" step="0.001"></x-range>
             <label for="x-translation">Translation X</label>
-            <x-range id="x-translation" name="x-translation" min="-10" max="10" step="1"></x-range>
+            <x-range id="x-translation" name="x-translation" min="-224" max="224" step="1"></x-range>
             <label for="y-translation">Translation Y</label>
-            <x-range id="y-translation" name="y-translation" min="-10" max="10" step="1"></x-range>
+            <x-range id="y-translation" name="y-translation" min="-224" max="224" step="1"></x-range>
+            <label for="scale">Scale</label>
+            <x-range id="scale" name="scale" min="1" max="890" step="1"></x-range>
         </form>
     </div>
 </html>
@@ -34,18 +34,16 @@
 <script type="module">
     import { defineCustomElement } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
     const Range = defineCustomElement({
-        // normal Vue component options here
         props: {
             name: String, 
             min: Number,
             max: Number,
-            step: Number
+            step: Number,
         },
         data () {
             return  {
                 range: 0,
                 url: URL,
-                prevent: 0,
                 timer: null,
             }
         },
@@ -74,7 +72,7 @@
                 this.range = data;
             });
         },
-        template: `<input type="range" v-model="range" @input="generate" :min="min" :max="max" :step="step"/>`,
+        template: `<input type="range" v-model.number="range" @input="generate" :min="min" :max="max" :step="step"/>`,
 
         // defineCustomElement only: CSS to be injected into shadow root
         styles: [`/* inlined css */`]
@@ -104,6 +102,7 @@
 
  iframe {
      width: 890px;
+     border: none;
  }
 
  .form {

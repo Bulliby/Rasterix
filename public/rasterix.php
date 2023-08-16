@@ -13,8 +13,8 @@ $centerColor = new Color(['red' => 255, 'green' => 255, 'blue' => 255]);
 
 const IMAGE_WIDTH = 890;
 const IMAGE_HEIGHT = 890;
-const CANVAS_WIDTH = 40;
-const CANVAS_HEIGHT = 40;
+const CANVAS_WIDTH = 0.5;
+const CANVAS_HEIGHT = 0.5;
 
 $corner1 = new Vertex( array( 'x' => 1, 'y' => -1, 'z' => -5, 'color' => $color ) );
 $corner2 = new Vertex( array( 'x' => 1, 'y' => -1, 'z' => -3, 'color' => $color ) );
@@ -33,28 +33,28 @@ $M = new Matrix(MatrixType::Identity);
 if (empty($_SESSION)) {
     $_SESSION['x-translation'] = 0;
     $_SESSION['y-translation'] = 0;
-    $_SESSION['z-translation'] = -20;
     $_SESSION['x-rotation'] = 0;
     $_SESSION['y-rotation'] = 0;
     $_SESSION['z-rotation'] = 0;
+    $_SESSION['scale'] = 1;
 }
 
 $_SESSION['x-translation'] = isset($_POST['x-translation']) ? (int) $_POST['x-translation'] : $_SESSION['x-translation'];
 $_SESSION['y-translation'] = isset($_POST['y-translation']) ? (int) $_POST['y-translation'] : $_SESSION['y-translation'];
-$_SESSION['z-translation'] = isset($_POST['z-translation']) ? (int) $_POST['z-translation'] : $_SESSION['z-translation'];
 $_SESSION['x-rotation'] = isset($_POST['x-rotation']) ? (float) $_POST['x-rotation'] : $_SESSION['x-rotation'];
 $_SESSION['y-rotation'] = isset($_POST['y-rotation']) ? (float) $_POST['y-rotation'] : $_SESSION['y-rotation'];
 $_SESSION['z-rotation'] = isset($_POST['z-rotation']) ? (float) $_POST['z-rotation'] : $_SESSION['z-rotation'];
+$_SESSION['scale'] = isset($_POST['scale']) ? (float) $_POST['scale'] : $_SESSION['scale'];
 
 if (!empty($_POST['get-range'])) {
     header('Content-Type: application/json');
     $ret = match((string) $_POST['get-range']) {
         'x-translation' => $_SESSION['x-translation'],
         'y-translation' => $_SESSION['y-translation'],
-        'z-translation' => $_SESSION['z-translation'],
         'x-rotation' => $_SESSION['x-rotation'],
         'y-rotation' => $_SESSION['y-rotation'],
         'z-rotation' => $_SESSION['z-rotation'],
+        'scale' => $_SESSION['scale'],
         default => exit(403),
     };
 
@@ -62,10 +62,8 @@ if (!empty($_POST['get-range'])) {
     die();
 }
 
-$S = new Matrix(MatrixType::Scale, 10.0);
-//$vtx = new Vertex( array( 'x' => 445, 'y' => 445, 'z' => 1 ) );
-//$vtx = new Vertex(['x' => (float) $_SESSION['x-translation'], 'y' => (float) $_SESSION['y-translation'], 'z' => (float) $_SESSION['z-translation']]);
-$vtx = new Vertex(['x' => (float) $_SESSION['x-translation'], 'y' => (float) $_SESSION['y-translation'], 'z' => (float) $_SESSION['z-translation']]);
+$S = new Matrix(MatrixType::Scale, $_SESSION['scale']);
+$vtx = new Vertex(['x' => (float) $_SESSION['x-translation'], 'y' => (float) $_SESSION['y-translation'], 'z' => -890]);
 $vtc = new Vector( array( 'dest' => $vtx ) );
 $T = new Matrix(MatrixType::Translation, $vtc);
 $RX = new Matrix(MatrixType::RX, (float) $_SESSION['x-rotation']);
@@ -80,8 +78,8 @@ foreach ($corners as &$corner)
 {
     $corner = $worldToCenter->transformVertex($corner); 
     $corner = $RX->multMatrix($RY)->multMatrix($RZ)->transformVertex($corner);
-    $corner = $worldToCenter->transformVertex($corner); 
-    $corner = $T->transformVertex($corner);
+    $corner = $centerToWorld->transformVertex($corner); 
+    $corner = $T->multMatrix($S)->transformVertex($corner);
     $projectedCorners [] = Vertex::projectPoint($corner);
 }
 
