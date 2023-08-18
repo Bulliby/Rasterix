@@ -34,7 +34,7 @@ if (empty($_SESSION)) {
     $_SESSION['x-rotation'] = 3.2;
     $_SESSION['y-rotation'] = 2.36;
     $_SESSION['z-rotation'] = 2.337;
-    $_SESSION['scale'] = 193;
+    $_SESSION['scale'] = 142;
 }
 
 $_SESSION['x-translation'] = isset($_POST['x-translation']) ? (int) $_POST['x-translation'] : $_SESSION['x-translation'];
