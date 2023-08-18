@@ -28,15 +28,13 @@ $center = new Vertex( array( 'x' => 0, 'y' => 0, 'z' => -4, 'color' => $centerCo
 
 $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7, $corner8, $center];
 
-$M = new Matrix(MatrixType::Identity);
-
 if (empty($_SESSION)) {
-    $_SESSION['x-translation'] = 0;
-    $_SESSION['y-translation'] = 0;
-    $_SESSION['x-rotation'] = 0;
-    $_SESSION['y-rotation'] = 0;
-    $_SESSION['z-rotation'] = 0;
-    $_SESSION['scale'] = 1;
+    $_SESSION['x-translation'] = 36;
+    $_SESSION['y-translation'] = -12;
+    $_SESSION['x-rotation'] = 3.2;
+    $_SESSION['y-rotation'] = 2.36;
+    $_SESSION['z-rotation'] = 2.337;
+    $_SESSION['scale'] = 193;
 }
 
 $_SESSION['x-translation'] = isset($_POST['x-translation']) ? (int) $_POST['x-translation'] : $_SESSION['x-translation'];
@@ -145,7 +143,7 @@ imagepolygon($image, [
     $projectedCorners[2]->getX(), $projectedCorners[2]->getY(),
 ], 4, $col_poly);
 
-imagesetpixel($image, $projectedCorners[8]->getX(), $projectedCorners[8]->getY(), $col_center);
+//imagesetpixel($image, $projectedCorners[8]->getX(), $projectedCorners[8]->getY(), $col_center);
 
 header('Content-type: image/png');
 
