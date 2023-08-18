@@ -13,5 +13,4 @@ enum MatrixType
     case Projection;
     case View;
     case Inverse;
-    case Custom;
 }

@@ -1,12 +1,12 @@
 <?php
 
+require_once '../vendor/autoload.php';
+
 use Waxer\Rasterix\Color;
 use Waxer\Rasterix\Matrices\Matrix;
 use Waxer\Rasterix\Vertex;
 use Waxer\Rasterix\Vector;
 use Waxer\Rasterix\Enums\MatrixType;
-
-require_once '../vendor/autoload.php';
 
 $color = new Color(['red' => 255, 'green' => 0, 'blue' => 0]);
 $centerColor = new Color(['red' => 255, 'green' => 255, 'blue' => 255]);
@@ -14,7 +14,7 @@ $centerColor = new Color(['red' => 255, 'green' => 255, 'blue' => 255]);
 const IMAGE_WIDTH = 890;
 const IMAGE_HEIGHT = 890;
 const CANVAS_WIDTH = 0.5;
-const CANVAS_HEIGHT = 0.5;
+const CANVAS_HEIGHT = 0.5; 
 
 $corner1 = new Vertex( array( 'x' => 1, 'y' => -1, 'z' => -5, 'color' => $color ) );
 $corner2 = new Vertex( array( 'x' => 1, 'y' => -1, 'z' => -3, 'color' => $color ) );
@@ -90,6 +90,7 @@ $RZ = new Matrix(MatrixType::RZ, (float) $_SESSION['z-rotation']);
 $vtc = new Vector( array( 'dest' => $center ) );
 $worldToCenter = new Matrix(MatrixType::Translation, $vtc->opposite());
 $centerToWorld = new Matrix(MatrixType::Inverse, $worldToCenter);
+$projectedCorners = [];
 
 foreach ($corners as &$corner) 
 {

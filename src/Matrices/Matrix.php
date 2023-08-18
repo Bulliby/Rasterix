@@ -12,7 +12,6 @@ use Waxer\Rasterix\Matrices\RX;
 use Waxer\Rasterix\Matrices\RZ;
 use Waxer\Rasterix\Matrices\RY;
 use Waxer\Rasterix\Matrices\Projection;
-use Waxer\Rasterix\Matrices\Custom;
 use Waxer\Rasterix\Matrices\View;
 use Waxer\Rasterix\Vertex;
 
@@ -36,7 +35,6 @@ class Matrix
             MatrixType::RZ => (new RZ($params[0]))(),
             MatrixType::Inverse => (new Inverse($params[0]))(),
             MatrixType::Projection => (new Projection($params[0], $params[1], $params[2], $params[3]))(),
-            MatrixType::Custom => (new Custom($params[0]))(),
             MatrixType::View => (new View($params[0], $params[1]))(),
         };
     }
