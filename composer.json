@@ -4,7 +4,8 @@
     "require-dev": {
         "phpstan/phpstan": "^1.9",
         "phpunit/phpunit": "^9.5",
-        "friendsofphp/php-cs-fixer": "^3.13"
+        "friendsofphp/php-cs-fixer": "^3.13",
+        "symfony/var-dumper": "^6.3"
     },
     "autoload": {
         "psr-4": {
@@ -21,8 +22,5 @@
 		"phpstan": "php vendor/phpstan/phpstan/phpstan.phar analyze",
 		"cs-fixer": "php vendor/friendsofphp/php-cs-fixer/php-cs-fixer fix src/",
 		"tests": "php vendor/phpunit/phpunit/phpunit ./tests/*"
-	},
-    "require": {
-        "symfony/var-dumper": "^6.3"
-    }
+	}
 }
