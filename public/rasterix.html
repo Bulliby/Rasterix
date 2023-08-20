@@ -16,17 +16,22 @@
         <div class="form-container">
             <form id="rangesForm" class="form">
                 <label for="x-rotation">Rotation X</label>
-                <x-range type="range" id="x-rotation" name="x-rotation" min="0.0" max="3.2" step="0.001"></x-range>
+                <x-range type="range" rangestart="" id="x-rotation" name="x-rotation" min="0.0" max="3.2" step="0.1"></x-range>
+
                 <label for="y-rotation">Rotation Y</label>
-                <x-range type="range" id="y-rotation" name="y-rotation" min="0.0" max="3.2" step="0.001"></x-range>
+                <x-range type="range" rangestart="" id="y-rotation" name="y-rotation" min="0.0" max="3.2" step="0.1"></x-range>
+
                 <label for="z-rotation">Rotation Z</label>
-                <x-range type="range" id="z-rotation" name="z-rotation" min="0.0" max="3.2" step="0.001"></x-range>
+                <x-range type="range" rangestart="" id="z-rotation"  name="z-rotation" min="0.0" max="3.2" step="0.1"></x-range>
+
                 <label for="x-translation">Translation X</label>
-                <x-range type="range" id="x-translation" name="x-translation" min="-224" max="224" step="1"></x-range>
+                <x-range type="range" rangestart="" id="x-translation" name="x-translation" min="-224" max="224" step="10"></x-range>
+
                 <label for="y-translation">Translation Y</label>
-                <x-range type="range" id="y-translation" name="y-translation" min="-224" max="224" step="1"></x-range>
+                <x-range type="range" rangestart="" id="y-translation" name="y-translation" min="-224" max="224" step="10"></x-range>
+
                 <label for="scale">Scale</label>
-                <x-range type="range" id="scale" name="scale" min="1" max="890" step="1"></x-range>
+                <x-range type="range" rangestart="" id="scale" name="scale" min="1" max="890" step="10"></x-range>
             </form>
         </div>
     </div>
@@ -63,80 +68,78 @@ body {
 }
 </style>
 
-<script>
-let form = document.getElementById('rangesForm');
-let width = window.innerWidth - form.offsetWidth;
-let height = window.innerHeight;
+<script type="module">
+
+import { defineCustomElement } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+
+const DEBOUNCE_TIME = 100;
 
 const URL = document.location.origin + '/rasterix.php';
 document.getElementById('render').setAttribute('src', URL);
-document.getElementById('render').setAttribute('width', height);
-document.getElementById('render').setAttribute('height', height);
 
-let size = JSON.stringify({'x' : height, 'y': height});
+document.getElementById('render').setAttribute('width', window.innerHeight);
+document.getElementById('render').setAttribute('height', window.innerHeight);
+let screenSize = JSON.stringify({'x' : window.innerHeight, 'y': window.innerHeight});
+
 const formData = new FormData();
-formData.append(`screen-size`, size) 
+formData.append(`init`, screenSize);
 
 fetch(URL, { method: 'POST', body: formData })
-    .then(() => {
-        document.getElementById('render').setAttribute('src', URL + '?t=' + new Date().getTime());
-    });
+.then((res) => res.json())
+.then((res) => {
+    document.getElementById('x-translation').setAttribute('rangestart', res['x-translation']);
+    document.getElementById('y-translation').setAttribute('rangestart', res['y-translation']);
+    document.getElementById('x-rotation').setAttribute('rangestart', res['x-rotation']);
+    document.getElementById('y-rotation').setAttribute('rangestart', res['y-rotation']);
+    document.getElementById('z-rotation').setAttribute('rangestart', res['z-rotation']);
+    document.getElementById('scale').setAttribute('rangestart', res['scale']);
+    document.getElementById('render').setAttribute('src', URL + '?t=' + new Date().getTime());
 
-</script>
-
-<script type="module">
-import { defineCustomElement } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
-const Range = defineCustomElement({
-    props: {
-        name: String, 
-        min: Number,
-        max: Number,
-        step: Number,
-    },
-    data () {
-        return  {
-            range: 0,
-            url: URL,
-            timer: null,
-        }
-    },
-    methods: {
-        generate() {
-            if (this.timer) {
-                clearTimeout(this.timer);
+    const Range = defineCustomElement({
+        props: {
+            name: String, 
+            min: Number,
+            max: Number,
+            step: Number,
+            rangestart: Number,
+        },
+        data () {
+            return  {
+                range: 0,
+                url: URL,
+                timer: null,
             }
-            this.timer = setTimeout(() => {
-                const formData = new FormData();
-                formData.append(`${this.name}`, this.range) 
-                fetch(this.url, { method: 'POST', body: formData })
-                    .then(() => {
-                        formData.delete(`${this.name}`) 
-                        document.getElementById('render').setAttribute('src', URL + '?t=' + new Date().getTime());
-                    });
-            }, 100);
-        }
-    },
-    /**
-         * Fetch the current value in SESSION for ranges inout.
-         */
-    created() {
-        const formData = new FormData();
-        formData.append("get-range", `${this.name}`) 
-        fetch(this.url, { method: 'POST', body: formData })
-            .then((r) => r.json())
-            .then((data) => {
-                this.range = data;
-            });
-    },
-    template: `<input type="range" v-model.number="range" @input="generate" :min="min" :max="max" :step="step"/>`,
+        },
+        methods: {
+            generate() {
+                if (this.timer) {
+                    clearTimeout(this.timer);
+                }
+                this.timer = setTimeout(() => {
+                    const formData = new FormData();
+                    formData.append(`${this.name}`, this.range) 
+                    fetch(this.url, { method: 'POST', body: formData })
+                        .then(() => {
+                            formData.delete(`${this.name}`) 
+                            document.getElementById('render').setAttribute('src', URL + '?t=' + new Date().getTime());
+                        });
+                }, DEBOUNCE_TIME);
+            }
+        },
+        created () {
+            this.range = this.rangestart;
+        },
 
-    // defineCustomElement only: CSS to be injected into shadow root
-    styles: [`/* inlined css */`]
-})
+        template: `<input type="range" v-model.number="range" :rangestart="rangestart" @input="generate" :min="min" :max="max" :step="step"/>`,
+
+        // defineCustomElement only: CSS to be injected into shadow root
+        styles: [`/* inlined css */`]
+    })
 
 // Register the custom element.
 // After registration, all `<x-range>` tags
 // on the page will be upgraded.
 customElements.define('x-range', Range)
+});
 </script>
 
