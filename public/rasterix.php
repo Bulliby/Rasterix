@@ -29,12 +29,12 @@ $center = new Vertex( array( 'x' => 0, 'y' => 0, 'z' => -4, 'color' => $centerCo
 $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7, $corner8, $center];
 
 if (empty($_SESSION)) {
-    $_SESSION['x-translation'] = 36;
-    $_SESSION['y-translation'] = -12;
-    $_SESSION['x-rotation'] = 3.2;
-    $_SESSION['y-rotation'] = 2.36;
-    $_SESSION['z-rotation'] = 2.337;
-    $_SESSION['scale'] = 142;
+    $_SESSION['x-translation'] = -4;
+    $_SESSION['y-translation'] = -4;
+    $_SESSION['x-rotation'] = 1.0;
+    $_SESSION['y-rotation'] = 2.3;
+    $_SESSION['z-rotation'] = 1.2;
+    $_SESSION['scale'] = 221;
 }
 
 $_SESSION['x-translation'] = isset($_POST['x-translation']) ? (int) $_POST['x-translation'] : $_SESSION['x-translation'];
