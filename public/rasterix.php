@@ -29,12 +29,12 @@ $center = new Vertex( array( 'x' => 0, 'y' => 0, 'z' => -4, 'color' => $centerCo
 $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7, $corner8, $center];
 
 if (empty($_SESSION)) {
-    $_SESSION['x-translation'] = 36;
-    $_SESSION['y-translation'] = -12;
-    $_SESSION['x-rotation'] = 3.2;
-    $_SESSION['y-rotation'] = 2.36;
-    $_SESSION['z-rotation'] = 2.337;
-    $_SESSION['scale'] = 142;
+    $_SESSION['x-translation'] = -4;
+    $_SESSION['y-translation'] = -4;
+    $_SESSION['x-rotation'] = 1.0;
+    $_SESSION['y-rotation'] = 2.3;
+    $_SESSION['z-rotation'] = 1.2;
+    $_SESSION['scale'] = 221;
 }
 
 $_SESSION['x-translation'] = isset($_POST['x-translation']) ? (int) $_POST['x-translation'] : $_SESSION['x-translation'];
@@ -44,8 +44,8 @@ $_SESSION['y-rotation'] = isset($_POST['y-rotation']) ? (float) $_POST['y-rotati
 $_SESSION['z-rotation'] = isset($_POST['z-rotation']) ? (float) $_POST['z-rotation'] : $_SESSION['z-rotation'];
 $_SESSION['scale'] = isset($_POST['scale']) ? (float) $_POST['scale'] : $_SESSION['scale'];
 
-if (!empty($_POST['screen-size'])) {
-    $screen_size = json_decode((string) $_POST['screen-size'], true, 2);
+if (!empty($_POST['init'])) {
+    $screen_size = json_decode((string) $_POST['init'], true, 2);
 
     if (!$screen_size) {
         echo "Bad request" . PHP_EOL;
@@ -54,21 +54,18 @@ if (!empty($_POST['screen-size'])) {
 
     $_SESSION['IMAGE_WIDTH'] = $screen_size['x'];
     $_SESSION['IMAGE_HEIGHT'] = $screen_size['y'];
-}
 
-if (!empty($_POST['get-range'])) {
     header('Content-Type: application/json');
-    $ret = match((string) $_POST['get-range']) {
+
+    echo json_encode([
         'x-translation' => $_SESSION['x-translation'],
         'y-translation' => $_SESSION['y-translation'],
         'x-rotation' => $_SESSION['x-rotation'],
         'y-rotation' => $_SESSION['y-rotation'],
         'z-rotation' => $_SESSION['z-rotation'],
         'scale' => $_SESSION['scale'],
-        default => exit(403),
-    };
+    ]);
 
-    echo json_encode($ret);
     die();
 }
 
