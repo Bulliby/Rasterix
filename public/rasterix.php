@@ -65,7 +65,6 @@ if (!empty($_POST['init'])) {
         'z-rotation' => $_SESSION['z-rotation'],
         'scale' => $_SESSION['scale'],
     ]);
-
     die();
 }
 
@@ -73,7 +72,7 @@ $S = new Matrix(MatrixType::Scale, $_SESSION['scale']);
 $vtx = new Vertex(['x' => (float) $_SESSION['x-translation'], 'y' => (float) $_SESSION['y-translation'], 'z' => -890]);
 
 if (!isset($_SESSION['IMAGE_WIDTH']) || !isset($_SESSION['IMAGE_HEIGHT'])) {
-    die();
+    die("Error");
 }
 
 $vtc = new Vector( array( 'dest' => $vtx ) );
