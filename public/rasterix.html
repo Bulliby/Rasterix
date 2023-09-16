@@ -5,14 +5,14 @@
         <title>Rasterix</title>
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <meta name="description" content="" />
-        <link rel="icon" href="favicon.ico">
+        <link rel="icon" href="/favicon.ico">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@1/css/pico.min.css">
     </head>
     <!-- container class is used by pico.css, so I rename it -->
     <div class="view-container">
         <div class="border-container">
         </div>
-        <img id="render" title="Rasterix render window"></iframe>
+        <img id="render" title="Rasterix render window">
         <div class="form-container">
             <form id="rangesForm" class="form">
                 <label for="x-rotation">Rotation X</label>
@@ -75,7 +75,12 @@ import { defineCustomElement } from 'https://unpkg.com/vue@3/dist/vue.esm-browse
 const DEBOUNCE_TIME = 100;
 
 const URL = document.location.origin + '/rasterix.php';
-document.getElementById('render').setAttribute('src', URL);
+/**
+ * TODO: I need to understand why the error caused
+ * by the lake of session is not overrided by next call
+ * to rasterix.php
+ */
+//document.getElementById('render').setAttribute('src', URL);
 
 document.getElementById('render').setAttribute('width', window.innerHeight);
 document.getElementById('render').setAttribute('height', window.innerHeight);
@@ -136,10 +141,10 @@ fetch(URL, { method: 'POST', body: formData })
         styles: [`/* inlined css */`]
     })
 
-// Register the custom element.
-// After registration, all `<x-range>` tags
-// on the page will be upgraded.
-customElements.define('x-range', Range)
+    // Register the custom element.
+    // After registration, all `<x-range>` tags
+    // on the page will be upgraded.
+    customElements.define('x-range', Range)
 });
 </script>
 

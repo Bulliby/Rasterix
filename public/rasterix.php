@@ -67,7 +67,8 @@ if (!empty($_POST['init'])) {
         'z-rotation' => $_SESSION['z-rotation'],
         'scale' => $_SESSION['scale'],
     ]);
-    die();
+
+    exit(0);
 }
 
 $S = new Matrix(MatrixType::Scale, $_SESSION['scale']);
