@@ -9,6 +9,7 @@ use Waxer\Rasterix\Matrices\Matrix;
 use Waxer\Rasterix\Vertex;
 use Waxer\Rasterix\Vector;
 use Waxer\Rasterix\Enums\MatrixType;
+use Waxer\Rasterix\Image;
 
 $color = new Color(['red' => 255, 'green' => 0, 'blue' => 0]);
 $centerColor = new Color(['red' => 255, 'green' => 255, 'blue' => 255]);
@@ -30,21 +31,36 @@ $center = new Vertex( array( 'x' => 0, 'y' => 0, 'z' => -4, 'color' => $centerCo
 
 $corners = [$corner1, $corner2, $corner3, $corner4, $corner5, $corner6, $corner7, $corner8, $center];
 
-if (empty($_SESSION)) {
-    $_SESSION['x-translation'] = -4;
-    $_SESSION['y-translation'] = -4;
-    $_SESSION['x-rotation'] = 1.0;
-    $_SESSION['y-rotation'] = 2.3;
-    $_SESSION['z-rotation'] = 1.2;
-    $_SESSION['scale'] = 221;
+if (isset($_COOKIE['positions'])) {
+    $cookieParsed = json_decode($_COOKIE['positions'], 'array');
+    $imageData = new Image(
+        $cookieParsed['x-translation'],
+        $cookieParsed['y-translation'],
+        $cookieParsed['x-rotation'],
+        $cookieParsed['y-rotation'],
+        $cookieParsed['z-rotation'],
+        $cookieParsed['scale'],
+    );
+    $imageData->imageWidth = $cookieParsed['imageWidth'];
+    $imageData->imageHeight = $cookieParsed['imageHeight'];
+}
+else {
+    $imageData = new Image(-4, -4, 1.0, 2.3, 1.2, 221);
 }
 
-$_SESSION['x-translation'] = isset($_POST['x-translation']) ? (int) $_POST['x-translation'] : $_SESSION['x-translation'];
-$_SESSION['y-translation'] = isset($_POST['y-translation']) ? (int) $_POST['y-translation'] : $_SESSION['y-translation'];
-$_SESSION['x-rotation'] = isset($_POST['x-rotation']) ? (float) $_POST['x-rotation'] : $_SESSION['x-rotation'];
-$_SESSION['y-rotation'] = isset($_POST['y-rotation']) ? (float) $_POST['y-rotation'] : $_SESSION['y-rotation'];
-$_SESSION['z-rotation'] = isset($_POST['z-rotation']) ? (float) $_POST['z-rotation'] : $_SESSION['z-rotation'];
-$_SESSION['scale'] = isset($_POST['scale']) ? (float) $_POST['scale'] : $_SESSION['scale'];
+if (isset($_POST['x-translation']))
+    $imageData->xTranslation = $_POST['x-translation'];
+if (isset($_POST['y-translation']))
+    $imageData->yTranslation = $_POST['y-translation'];
+if (isset($_POST['x-rotation']))
+    $imageData->xRotation = $_POST['x-rotation'];
+if (isset($_POST['y-rotation']))
+    $imageData->yRotation = $_POST['y-rotation'];
+if (isset($_POST['z-rotation']))
+    $imageData->zRotation = $_POST['z-rotation'];
+if (isset($_POST['scale']))
+    $imageData->scale = $_POST['scale'];
+
 
 if (!empty($_POST['init'])) {
     $screen_size = json_decode((string) $_POST['init'], true, 2);
@@ -54,35 +70,38 @@ if (!empty($_POST['init'])) {
         exit(400);
     }
 
-    $_SESSION['IMAGE_WIDTH'] = $screen_size['x'];
-    $_SESSION['IMAGE_HEIGHT'] = $screen_size['y'];
+    $imageData->imageWidth = $screen_size['x'];
+    $imageData->imageHeight = $screen_size['y'];
 
     header('Content-Type: application/json');
 
     echo json_encode([
-        'x-translation' => $_SESSION['x-translation'],
-        'y-translation' => $_SESSION['y-translation'],
-        'x-rotation' => $_SESSION['x-rotation'],
-        'y-rotation' => $_SESSION['y-rotation'],
-        'z-rotation' => $_SESSION['z-rotation'],
-        'scale' => $_SESSION['scale'],
+        'x-translation' => $imageData->xTranslation,
+        'y-translation' => $imageData->yTranslation,
+        'x-rotation' => $imageData->xRotation,
+        'y-rotation' => $imageData->yRotation,
+        'z-rotation' => $imageData->zRotation,
+        'scale' => $imageData->scale,
     ]);
 
-    exit(0);
+    setcookie('positions', json_encode($imageData->toArray()), 0, "", "", false /** secure no https in dev **/, true);
+    die();
 }
 
-$S = new Matrix(MatrixType::Scale, $_SESSION['scale']);
-$vtx = new Vertex(['x' => (float) $_SESSION['x-translation'], 'y' => (float) $_SESSION['y-translation'], 'z' => -890]);
+setcookie('positions', json_encode($imageData->toArray()), 0, "", "", false /** secure no https in dev **/, true);
 
-if (!isset($_SESSION['IMAGE_WIDTH']) || !isset($_SESSION['IMAGE_HEIGHT'])) {
-    die("Error");
+$S = new Matrix(MatrixType::Scale, $imageData->scale);
+$vtx = new Vertex(['x' => (float) $imageData->xTranslation, 'y' => (float) $imageData->yTranslation, 'z' => -890]);
+
+if (!$imageData->imageWidth || !$imageData->imageHeight) {
+    die();
 }
 
 $vtc = new Vector( array( 'dest' => $vtx ) );
 $T = new Matrix(MatrixType::Translation, $vtc);
-$RX = new Matrix(MatrixType::RX, (float) $_SESSION['x-rotation']);
-$RY = new Matrix(MatrixType::RY, (float) $_SESSION['y-rotation']);
-$RZ = new Matrix(MatrixType::RZ, (float) $_SESSION['z-rotation']);
+$RX = new Matrix(MatrixType::RX, (float) $imageData->xRotation);
+$RY = new Matrix(MatrixType::RY, (float) $imageData->yRotation);
+$RZ = new Matrix(MatrixType::RZ, (float) $imageData->zRotation);
 
 $vtc = new Vector( array( 'dest' => $center ) );
 $worldToCenter = new Matrix(MatrixType::Translation, $vtc->opposite());
@@ -95,10 +114,10 @@ foreach ($corners as &$corner)
     $corner = $RX->multMatrix($RY)->multMatrix($RZ)->transformVertex($corner);
     $corner = $centerToWorld->transformVertex($corner); 
     $corner = $T->multMatrix($S)->transformVertex($corner);
-    $projectedCorners [] = projectPoint($corner);
+    $projectedCorners [] = projectPoint($corner, $imageData);
 }
 
-$image = imagecreatetruecolor($_SESSION['IMAGE_WIDTH'], $_SESSION['IMAGE_HEIGHT']);
+$image = imagecreatetruecolor($imageData->imageWidth, $imageData->imageHeight);
 $col_poly = imagecolorallocate($image, $color->red, $color->green, $color->blue);
 $col_center = imagecolorallocate($image, $center->getColor()->red, $center->getColor()->green, $center->getColor()->blue);
 $downColor = new Color(['red' => 102, 'green' => 252, 'blue' => 102]);
@@ -142,14 +161,12 @@ imagepolygon($image, [
     $projectedCorners[2]->getX(), $projectedCorners[2]->getY(),
 ], 4, $col_poly);
 
-//imagesetpixel($image, $projectedCorners[8]->getX(), $projectedCorners[8]->getY(), $col_center);
-
 header('Content-type: image/png');
 
 imagepng($image);
 imagedestroy($image);
 
-function projectPoint(Vertex $corner): Vertex
+function projectPoint(Vertex $corner, Image $imageData): Vertex
 {
     $x_proj = $corner->getX() / - $corner->getZ();
     $y_proj = $corner->getY() / - $corner->getZ();
@@ -157,8 +174,8 @@ function projectPoint(Vertex $corner): Vertex
     //Here 2 is for obtain [0,890] interval and no [-445, 445]
     $x_NDC = ($x_proj + CANVAS_WIDTH / 2) / CANVAS_WIDTH;
     $y_NDC = ($y_proj + CANVAS_HEIGHT / 2) / CANVAS_HEIGHT;
-    $x_rast = floor($x_NDC * $_SESSION['IMAGE_WIDTH']);
-    $y_rast = floor((1 - $y_NDC) * $_SESSION['IMAGE_HEIGHT']);
+    $x_rast = floor($x_NDC * $imageData->imageWidth);
+    $y_rast = floor((1 - $y_NDC) * $imageData->imageHeight);
 
     return new Vertex( array( 'x' => $x_rast, 'y' => $y_rast, 'color' => $corner->getColor() ) );
 }

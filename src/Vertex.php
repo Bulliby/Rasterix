@@ -139,6 +139,11 @@ class Vertex
         return $this;
     }
 
+    public function toArray2D(): array
+    {
+        return [$this->x, $this->y];
+    }
+
     public function __toString(): string
     {
         if (self::$verbose === true) {
