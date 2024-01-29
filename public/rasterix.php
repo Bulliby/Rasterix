@@ -1,7 +1,5 @@
 <?php
 
-session_start();
-
 require_once '../vendor/autoload.php';
 
 use Waxer\Rasterix\Color;
@@ -10,6 +8,8 @@ use Waxer\Rasterix\Vertex;
 use Waxer\Rasterix\Vector;
 use Waxer\Rasterix\Enums\MatrixType;
 use Waxer\Rasterix\Image;
+
+$prod = file_exists('.prod');
 
 $color = new Color(['red' => 255, 'green' => 0, 'blue' => 0]);
 $centerColor = new Color(['red' => 255, 'green' => 255, 'blue' => 255]);
@@ -84,17 +84,31 @@ if (!empty($_POST['init'])) {
         'scale' => $imageData->scale,
     ]);
 
-    setcookie('positions', json_encode($imageData->toArray()), 0, "", "", false /** secure no https in dev **/, true);
-    die();
+    setcookie('positions', json_encode($imageData->toArray()),[
+        'expires' => 0, 
+        'path' => "", 
+        'domain' => "", 
+        'secure' => $prod,
+        'httponly' => true,
+        'samesite' => 'Strict',
+    ]);
+    die('');
 }
 
-setcookie('positions', json_encode($imageData->toArray()), 0, "", "", false /** secure no https in dev **/, true);
+setcookie('positions', json_encode($imageData->toArray()),[
+    'expires' => 0, 
+    'path' => "", 
+    'domain' => "", 
+    'secure' => $prod,
+    'httponly' => true,
+    'samesite' => 'Strict',
+]);
 
 $S = new Matrix(MatrixType::Scale, $imageData->scale);
 $vtx = new Vertex(['x' => (float) $imageData->xTranslation, 'y' => (float) $imageData->yTranslation, 'z' => -890]);
 
 if (!$imageData->imageWidth || !$imageData->imageHeight) {
-    die();
+    die('error');
 }
 
 $vtc = new Vector( array( 'dest' => $vtx ) );
@@ -161,7 +175,7 @@ imagepolygon($image, [
     $projectedCorners[2]->getX(), $projectedCorners[2]->getY(),
 ], 4, $col_poly);
 
-header('Content-type: image/png');
+//header('Content-type: image/png');
 
 imagepng($image);
 imagedestroy($image);

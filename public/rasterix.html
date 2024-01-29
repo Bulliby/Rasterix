@@ -70,36 +70,15 @@ body {
 
 <script type="module">
 
-const parseCookie = () => {
-    return document.cookie.split(';').map((cookie) => {
-        const parsed = cookie.trim().split('=')
-        return { name: parsed[0], content: parsed[1] }
-    })
-}
-
-const getCookie = (cookies, name) => {
-    return cookies.filter((cookie) => {
-        return cookie.name === name
-    })[0]
-}
-
-import { defineCustomElement } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.js'
+import { defineCustomElement } from 'https://unpkg.com/vue@3/dist/vue.esm-browser.prod.js'
 
 const DEBOUNCE_TIME = 100;
 
 const URL = document.location.origin + '/rasterix.php';
-/**
- * TODO: I need to understand why the error caused
- * by the lake of session is not overrided by next call
- * to rasterix.php
- */
-//document.getElementById('render').setAttribute('src', URL);
 
 document.getElementById('render').setAttribute('width', window.innerHeight);
 document.getElementById('render').setAttribute('height', window.innerHeight);
 let screenSize = JSON.stringify({'x' : window.innerHeight, 'y': window.innerHeight});
-
-const cookies = parseCookie();
 
 const formData = new FormData();
 formData.append('init', screenSize);
