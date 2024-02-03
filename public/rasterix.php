@@ -85,7 +85,7 @@ if (!empty($_POST['init'])) {
     ]);
 
     setcookie('positions', json_encode($imageData->toArray()),[
-        'expires' => 0, 
+        'expires' => time()+60*60*24*30, 
         'path' => "", 
         'domain' => "", 
         'secure' => $prod,
@@ -96,7 +96,7 @@ if (!empty($_POST['init'])) {
 }
 
 setcookie('positions', json_encode($imageData->toArray()),[
-    'expires' => 0, 
+    'expires' => time()+60*60*24*30, 
     'path' => "", 
     'domain' => "", 
     'secure' => $prod,
