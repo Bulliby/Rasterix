@@ -83,7 +83,7 @@ if (!empty($_POST['init'])) {
         'z-rotation' => $imageData->zRotation,
         'scale' => $imageData->scale,
     ]);
-
+    if (!isset($_COOKIE['positions']))
     setcookie('positions', json_encode($imageData->toArray()),[
         'expires' => time()+60*60*24*30, 
         'path' => "", 
@@ -95,6 +95,7 @@ if (!empty($_POST['init'])) {
     die('');
 }
 
+if (!isset($_COOKIE['positions']))
 setcookie('positions', json_encode($imageData->toArray()),[
     'expires' => time()+60*60*24*30, 
     'path' => "", 
